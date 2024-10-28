@@ -9,7 +9,7 @@ async function getEmbedding(inputString: string, host: string | null) {
     } else {
         urlPrefix = 'https://' + host;
     }
-    const res = await fetch(urlPrefix + "/works/article-search/api/internal_embedding", {
+    const res = await fetch(urlPrefix + "/api/internal_embedding", {
         method: 'POST',
         headers: {
             'Referer': 'https://manglekuo.com',

@@ -9,7 +9,7 @@ export default function Page() {
 
     const handleRevalidateButtonClick = (type) => {
         const fetchData = async () => {
-            const res = await fetch('/works/article-search/api/revalidate', {
+            const res = await fetch('/api/revalidate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

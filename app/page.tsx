@@ -27,7 +27,7 @@ export default async function Page({
 
   return (
     <>
-      {/* <Suspense fallback={<><LoadingSources /><LoadingSearchSortFilter /><LoadingCardGrid /></>}> */}
+      <Suspense fallback={<><LoadingSources /><LoadingSearchSortFilter /><LoadingCardGrid /></>}>
         {/* <AppContextProvider> */}
           {/* <SuccessfulSources locale={locale} successfulSources={successfulSources} updateTime={updateTime} />
           <SearchSortFilter locale={locale} initialSearchParams={searchParamsString} /> */}
@@ -39,7 +39,7 @@ export default async function Page({
           initialSearchParams={searchParamsString}
         />
         {/* </AppContextProvider> */}
-      {/* </Suspense> */}
+      </Suspense>
       <div className="flex flex-col w-full items-center text-center text-neutral-400">
         <p>Search Params: {searchParamsString}</p>
         <p>Server page render: {new Date().toISOString()}</p>

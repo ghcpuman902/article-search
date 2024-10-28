@@ -45,7 +45,7 @@ export function ArticlesGrid({ locale, initialArticles, updateTime, initialSearc
         ))}
       </div>
       <div className="flex justify-center my-3 items-center gap-x-5">
-        <div><Link href="/works/article-search/jp" className='hover:underline'>🇯🇵日本語版</Link></div>
+        <div><Link href="/jp" className='hover:underline'>🇯🇵日本語版</Link></div>
         {/* Removed the "Clear All Data" button as it's no longer needed for static rendering */}
       </div>
       <div className="mt-4 md:mt-8 flex flex-col w-full items-center text-neutral-400">
@@ -101,7 +101,7 @@ export function ArticlesGrid({ locale, initialArticles, updateTime, initialSearc
 //   const [lArticles, setLArticles] = useState(initialArticles)
 //   const queryEmbedding = useRef<number[] | null>(null)
 
-//   const batchEmbeddingUrl = '/works/article-search/api/batch-embedding-kv'
+//   const batchEmbeddingUrl = '/api/batch-embedding-kv'
 
 //   const createQueryString = useCallback(
 //     (name: string, value: string) => {
@@ -151,7 +151,7 @@ export function ArticlesGrid({ locale, initialArticles, updateTime, initialSearc
 //         return cachedQueryEmbedding
 //       } else {
 //         console.log(`fetching targetEmbeddings`)
-//         const res = await fetch('/works/article-search/api/embedding', {
+//         const res = await fetch('/api/embedding', {
 //           method: 'POST',
 //           headers: {
 //             'Content-Type': 'application/json',
@@ -370,7 +370,7 @@ export function ArticlesGrid({ locale, initialArticles, updateTime, initialSearc
 //         }
 //       </div>
 //       <div className="flex justify-center my-3 items-center gap-x-5">
-//         <div><Link href="/works/article-search/jp" className='hover:underline'>🇯🇵日本語版</Link></div>
+//         <div><Link href="/jp" className='hover:underline'>🇯🇵日本語版</Link></div>
 //         <div>{dict.label['having-issues']}<Button variant="outline" onClick={() => { clearAllData() }}>{dict.button['clear-all-data']}</Button></div>
 //       </div>
 //       <div className="mt-4 md:mt-8 flex flex-col w-full items-center text-neutral-400" suppressHydrationWarning>
