@@ -46,17 +46,15 @@ export async function ArticlesGrid({ locale, articles: initialArticles, updateTi
           } | &quot;{queryString}&quot; | {dict.label.sort_by} {sortingMethod === "relevance" ? dict.label.relevance : dict.label.date} | {dict.label.filter_by} {getFilterText(filterByDays)}
         </span>
       </div>
-      {/* <Suspense fallback={<LoadingCardGrid />}> */}
-        <ArticleList
-          articles={visibleArticles}
-          queryString={queryString}
-          sortingMethod={sortingMethod}
-          locale={locale}
-        />
-      {/* </Suspense> */}
-      <div className="flex justify-center my-3 items-center gap-x-5">
+      <ArticleList
+        articles={visibleArticles}
+        queryString={queryString}
+        sortingMethod={sortingMethod}
+        locale={locale}
+      />
+      {/* <div className="flex justify-center my-3 items-center gap-x-5">
         <div><Link href="/jp" className='hover:underline'>🇯🇵日本語版</Link></div>
-      </div>
+      </div> */}
       <div className="mt-4 md:mt-8 flex flex-col w-full items-center text-neutral-400">
         server articles: {formatDate(updateTime)}
       </div>
