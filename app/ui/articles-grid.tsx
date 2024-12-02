@@ -3,7 +3,7 @@ import React from 'react'
 // import { Suspense } from 'react'
 import { ArticleCard } from "./article-card"
 import { formatDate, getDictionary } from "@/lib/utils"
-import Link from 'next/link'
+// import Link from 'next/link'
 // import { LoadingCardGrid } from './loading-templates'
 import { Article } from "@/lib/types"
 import { generateEmbeddings } from '@/app/actions/getEmbeddings'
