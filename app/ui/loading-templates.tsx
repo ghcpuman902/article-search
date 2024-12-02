@@ -1,3 +1,5 @@
+import React from 'react'
+
 import {
     Card,
     CardContent,
@@ -16,7 +18,7 @@ import { getDictionary } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 
-export const LoadingCardGrid = async () => {
+export const LoadingCardGrid: React.FC = async () => {
     const colorData = ["amber|100|600", "sky|100|400", "sky|200|600", "blue|200|600", "emerald|200|600", "violet|200|600", "neutral|200|600"];
 
     const zoneColors = colorData.map(color => {
@@ -65,7 +67,7 @@ export const LoadingCardGrid = async () => {
     );
 }
 
-export const LoadingSources = async () => {
+export const LoadingSources: React.FC = async () => {
     const dict = getDictionary();
     
     return (
@@ -76,7 +78,7 @@ export const LoadingSources = async () => {
     );
 }
 
-export const LoadingSearchSortFilter = async () => {
+export const LoadingSearchSortFilter: React.FC = async () => {
     const dict = getDictionary();
 
     return (

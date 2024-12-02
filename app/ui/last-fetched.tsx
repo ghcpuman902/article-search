@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { timeAgo, olderThan1hr, getDictionary } from "@/lib/utils";
 

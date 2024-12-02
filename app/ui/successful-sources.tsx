@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { getDictionary, getDomainNameFromUrl } from "@/lib/utils";

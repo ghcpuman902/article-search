@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
 interface Dictionary {
     title: {
         article_search: string;
@@ -26,8 +25,8 @@ interface Dictionary {
     };
 }
 
-export function getDictionary(locale: string): Dictionary {
-    if (locale == 'jp') {
+export function getDictionary(locale?: string): Dictionary {
+    if (locale === 'ja-JP') {
         return {
             "title": {
                 "article_search": "記事検索",

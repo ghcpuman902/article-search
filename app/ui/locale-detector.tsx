@@ -1,7 +1,7 @@
 'use client';
 
 import { useToast } from "@/hooks/use-toast"
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { redirect, usePathname, useSearchParams } from 'next/navigation'
 
 export const LocaleDetector = (): JSX.Element => {

@@ -4,7 +4,7 @@ import {
     // revalidateTag,
 } from 'next/cache'
 
-import { Suspense } from 'react'
+import React,{ Suspense } from 'react'
 import { generateRandomNumber } from './generateRandomNumber'
 import { splitNumber } from './splitNumber'
 // import { RefreshCacheButton } from './components/RefreshCacheButton'

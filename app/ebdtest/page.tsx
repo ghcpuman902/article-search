@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { generateEmbeddings } from '@/app/actions/getEmbeddings'
 import { Article } from '@/lib/types'
 import { Button } from '@/components/ui/button'

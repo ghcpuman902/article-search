@@ -1,5 +1,3 @@
-import type { NextConfig } from "next";
-
 // Define allowed RSS feed domains for images
 const RSS_DOMAINS = [
   'scitechdaily.com',
@@ -25,6 +23,9 @@ const RSS_DOMAINS = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    dirs: ['app', 'components', 'lib']
+  },
   experimental: {
     ppr: 'incremental',
     dynamicIO: true,

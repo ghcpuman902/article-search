@@ -1,11 +1,10 @@
+import React from 'react'
 export const experimental_ppr = true
 
-// import { SearchSortFilter } from './ui/search-sort-filter'
 import { ArticlesGrid } from './ui/articles-grid'
 import { SuccessfulSources } from "./ui/successful-sources"
-import { LoadingCardGrid, LoadingSources, LoadingSearchSortFilter } from './ui/loading-templates'
+import { LoadingCardGrid, LoadingSources } from './ui/loading-templates'
 import { Suspense } from 'react'
-// import { AppContextProvider } from './ui/article-context'
 import { fetchAllArticles } from './actions/fetchArticles'
 import { redirect } from 'next/navigation';
 
