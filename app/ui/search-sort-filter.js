@@ -4,25 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+// import { AlertCircle } from "lucide-react"
+// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-import { useLoading, useQueryString, useSortingMethod, useFilterByDays } from './article-context';
-import { clearAllData } from '../lib/local-articles';
+import {useQueryString, useSortingMethod, useFilterByDays } from './article-context';
+// import { clearAllData } from '../lib/local-articles';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { getDictionary } from "../lib/utils";
+import { useEffect, useRef } from 'react';
+import { getDictionary } from "@/lib/utils";
 
 
 export const SearchSortFilter = ({ locale }) => {
-    const [loading, setLoading] = useLoading();
     const [queryString, setQueryString] = useQueryString();
     const [sortingMethod, setSortingMethod] = useSortingMethod();
     const [filterByDays, setFilterByDays] = useFilterByDays();
-
-    const [showAlert, setShowAlert] = useState(false);
     const queryInputRef = useRef();
-
     const dict = getDictionary(locale);
 
     const updateSortingMethod = (e) => {
@@ -47,48 +43,27 @@ export const SearchSortFilter = ({ locale }) => {
         queryInputRef.current.value = queryString;
     }, [queryString]);
 
-
-    const timerRef = useRef(null);
-
-    useEffect(() => {
-        // Whenever loading changes, check its value
-        if (loading !== 200) {
-            // If a timer is not already going, start a new timer
-            if (timerRef.current === null) {
-                timerRef.current = setTimeout(() => {
-                    setShowAlert(true);
-                    // Clear the timer reference
-                    timerRef.current = null;
-                }, 90000);   // 1.5 minute
-            }
-        } else {
-            // If loading is finished and there's a timer going, clear it
-            if (timerRef.current !== null) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        }
-
-        // When component unmounts, clear any running timer
-        return () => {
-            if (timerRef.current !== null) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        };
-    }, [loading]);
-
     return (
         <div className="mt-6 w-full flex flex-wrap justify-center">
             <div className="w-full flex">
-                <Input id="query" type="text" className="mr-2" defaultValue={queryString} ref={queryInputRef} onKeyPress={event => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault(); // Prevents the default action of enter key
-                        track('ArticleSearch',{queryString:queryInputRef.current.value ? queryInputRef.current.value : queryString});
-                        setQueryString(queryInputRef.current.value ? queryInputRef.current.value : queryString);
-                    }
-                }} />
-                <Button className="flex flex-nowrap whitespace-nowrap" onClick={() => { track('ArticleSearch',{queryString:queryInputRef.current.value ? queryInputRef.current.value : queryString}); setQueryString(queryInputRef.current.value ? queryInputRef.current.value : queryString); }} disabled={loading != 200}>{loading != 200 ? (<><span className="animate-spin text-xl">☻</span>&nbsp;&nbsp;{dict.button.wait}</>) : dict.button.search}</Button>
+                <Input id="query" type="text" className="mr-2" defaultValue={queryString} ref={queryInputRef} 
+                    onKeyPress={event => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            track('ArticleSearch', {queryString: queryInputRef.current.value ? queryInputRef.current.value : queryString});
+                            setQueryString(queryInputRef.current.value ? queryInputRef.current.value : queryString);
+                        }
+                    }} 
+                />
+                <Button 
+                    className="flex flex-nowrap whitespace-nowrap" 
+                    onClick={() => { 
+                        track('ArticleSearch', {queryString: queryInputRef.current.value ? queryInputRef.current.value : queryString}); 
+                        setQueryString(queryInputRef.current.value ? queryInputRef.current.value : queryString); 
+                    }}
+                >
+                    {dict.button.search}
+                </Button>
             </div>
             <div className="flex items-center mx-2">
                 <Label htmlFor="sort-by-options" className="my-2 mr-3">{dict.label.sort_by}</Label>
@@ -114,20 +89,6 @@ export const SearchSortFilter = ({ locale }) => {
                     <Label className="mr-1" htmlFor="fourty-eight-hours">{dict.label["fourty-eight-hours"]}</Label>
                 </RadioGroup>
             </div>
-            {showAlert ? (
-                <div className="w-full flex">
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>{dict.label["issue-alert-title"]}</AlertTitle>
-                        <AlertDescription>
-                            {dict.label['issue-alert-description'].split('\n').map((line, i) => (
-                                <div key={i}>{line}<br /></div>
-                            ))}
-                        </AlertDescription>
-                        <Button className="mr-1 px-6 mt-2" variant="outline" onClick={() => { clearAllData(); }}>{dict.button['clear-all-data']}</Button>
-                        <Button className="mr-1 px-6 mt-2" variant="outline" onClick={() => { location.reload() }}>{dict.button['reload']}</Button>
-                    </Alert>
-                </div>) : null}
         </div>
     );
 }

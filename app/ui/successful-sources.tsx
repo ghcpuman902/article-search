@@ -1,9 +1,14 @@
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { getDictionary, getDomainNameFromUrl } from "../lib/utils";
+import { getDictionary, getDomainNameFromUrl } from "@/lib/utils";
 import { LastFetched } from "./last-fetched";
+import { SuccessfulSourcesProps } from "@/lib/types";
 
-export const SuccessfulSources = async ({ locale, successfulSources, updateTime }) => {
+export function SuccessfulSources({ 
+  locale, 
+  successfulSources, 
+  updateTime 
+}: SuccessfulSourcesProps) {
     const dict = getDictionary(locale);
 
     return (
@@ -13,11 +18,13 @@ export const SuccessfulSources = async ({ locale, successfulSources, updateTime 
                 const { url, count } = source;
                 return (
                     <Badge key={index} variant="outline" className="mx-1">
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{getDomainNameFromUrl(url)} ({count})</a>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            {getDomainNameFromUrl(url)} ({count})
+                        </a>
                     </Badge>
                 );
             }) : dict.label.loading}
             <LastFetched locale={locale} updateTime={updateTime} />
         </div>
     );
-}
+} 

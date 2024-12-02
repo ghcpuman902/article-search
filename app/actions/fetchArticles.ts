@@ -1,10 +1,16 @@
 'use server'
 
-import { cache } from 'react'
-import { unstable_cache } from 'next/cache'
-import { formatDate } from '../lib/utils'
+import {
+  // unstable_cacheTag as cacheTag,
+  unstable_cacheLife as cacheLife,
+  // revalidateTag,
+} from 'next/cache'
+
+
+import { formatDate } from '@/lib/utils'
 import * as htmlparser2 from 'htmlparser2'
 import render from 'dom-serializer'
+import { Node, Element, Text, AnyNode } from 'domhandler'
 
 // Types
 type Article = {
@@ -15,7 +21,7 @@ type Article = {
   image: string
   source: string
   distance: number | null
-  embedding: any | null
+  embedding: number[] | null
   key: string
   hidden: boolean
 }
@@ -28,36 +34,44 @@ type SuccessfulSource = {
 type FetchResult = {
   articles: Article[]
   successfulSources: SuccessfulSource[]
-  updateTime: string
+  updateTime: Date
+}
+
+type MediaItem = {
+  url?: string | undefined
+  title?: string
+  width?: number
+  height?: number
 }
 
 // Constants
 const MAX_AGE_IN_MILLISECONDS = 32 * 24 * 60 * 60 * 1000
 const HIDE_TIME_IN_MILLISECONDS = 4 * 24 * 60 * 60 * 1000
 
-const RSS_FEEDS = [
-  "https://scitechdaily.com/feed/",
-  "https://phys.org/rss-feed/space-news/",
-  "https://www.universetoday.com/feed",
-  "https://www.space.com/feeds/news",
-  "https://www.sciencealert.com/feed",
-  "https://skyandtelescope.org/astronomy-news/feed",
-  "https://spacenews.com/feed/",
-  "http://rss.sciam.com/ScientificAmerican-Global",
-  "https://ras.ac.uk/rss.xml",
-  "https://www.sci.news/astronomy/feed",
-  "https://www.newscientist.com/subject/space/feed/",
-  "https://theconversation.com/us/technology/articles.atom"
-]
-
-const RSS_FEED_JP = [
-  "https://sorae.info/feed",
-  "https://www.nao.ac.jp/atom.xml",
-  "http://www.astroarts.co.jp/article/feed.atom",
-  "https://subarutelescope.org/jp/atom.xml",
-  "https://alma-telescope.jp/news/feed",
-  "https://www.jaxa.jp/rss/press_j.rdf"
-]
+const RSS_FEEDS_BY_LOCALE = {
+  'en-US': [
+    "https://scitechdaily.com/feed/",
+    "https://phys.org/rss-feed/space-news/",
+    "https://www.universetoday.com/feed",
+    "https://www.space.com/feeds/news",
+    "https://www.sciencealert.com/feed",
+    "https://skyandtelescope.org/astronomy-news/feed",
+    "https://spacenews.com/feed/",
+    "http://rss.sciam.com/ScientificAmerican-Global",
+    "https://ras.ac.uk/rss.xml",
+    "https://www.sci.news/astronomy/feed",
+    "https://www.newscientist.com/subject/space/feed/",
+    "https://theconversation.com/us/technology/articles.atom"
+  ],
+  'ja-JP': [
+    "https://sorae.info/feed",
+    "https://www.nao.ac.jp/atom.xml",
+    "http://www.astroarts.co.jp/article/feed.atom",
+    "https://subarutelescope.org/jp/atom.xml",
+    "https://alma-telescope.jp/news/feed",
+    "https://www.jaxa.jp/rss/press_j.rdf"
+  ]
+} as const
 
 // Helper functions
 const linkToKey = (message: string): string => {
@@ -65,7 +79,7 @@ const linkToKey = (message: string): string => {
   return sanitizedLink.replace(/^-+|-+$/g, '')
 }
 
-const convertMediaToImg = (media: any[]): string => {
+const convertMediaToImg = (media: MediaItem[]): string => {
   if (Array.isArray(media) && media.length > 0 && media[0].url) {
     const { url: src, title: alt = '' } = media[0]
     let { width, height } = media[0]
@@ -73,7 +87,7 @@ const convertMediaToImg = (media: any[]): string => {
     if (!width || !height) {
       const match = src.match(/(\d+)x(\d+)\.[\w\d]+$/i)
       if (match) {
-        [width, height] = match.slice(1, 3)
+        [width, height] = match.slice(1, 3).map(Number)
       }
     }
 
@@ -88,27 +102,31 @@ const parseDescription = (oDescription: string | null): { description: string; i
     return { description: '', images: [] }
   }
   const dom = htmlparser2.parseDocument(oDescription)
-  let images: string[] = []
+  const images: string[] = []
 
-  const traverse = (node: any): string[] => {
+  const traverse = (node: Node): string[] => {
     if (node.type === 'root') {
-      if (node.children) {
-        return node.children.flatMap(traverse).filter(Boolean)
+      const rootNode = node as Element
+      if (rootNode.children) {
+        return rootNode.children.flatMap(traverse).filter(Boolean)
       }
     } else if (node.type === 'text') {
-      let text = node.data
+      const textNode = node as Text
+      let text = textNode.data
       text = text ? text.trim().replace(/\s\s+/g, ' ') : ''
       return text === 'The post' ? [] : [text]
     } else if (node.type === 'tag') {
-      if (node.name === 'img' || node.name === 'figure' || node.name === 'picture') {
-        images.push(render(node))
+      const tagNode = node as Element
+      if (tagNode.name === 'img' || tagNode.name === 'figure' || tagNode.name === 'picture') {
+        images.push(render(node as AnyNode))
         return []
-      } else if (node.name === 'p' && node.children && node.children.length >= 1 && node.children[0].type === 'text') {
-        let text = node.children[0]?.data
+      } else if (tagNode.name === 'p' && tagNode.children && tagNode.children.length >= 1 && tagNode.children[0].type === 'text') {
+        const firstChild = tagNode.children[0] as Text
+        let text = firstChild.data
         text = text ? text.trim().replace(/\s\s+/g, ' ') : ''
         return text === 'The post' ? [] : [text]
-      } else if (node.name === 'p' && node.children) {
-        return node.children.flatMap(traverse).filter(Boolean)
+      } else if (tagNode.name === 'p' && tagNode.children) {
+        return tagNode.children.flatMap(traverse).filter(Boolean)
       }
     }
     return []
@@ -120,7 +138,7 @@ const parseDescription = (oDescription: string | null): { description: string; i
 
 // Server actions
 export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => {
-  let articles: Article[] = []
+  const articles: Article[] = []
   try {
     const response = await fetch(url)
     const data = await response.text()
@@ -132,11 +150,11 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
     }
     if (types.includes(parsedResult.type) && parsedResult.items) {
       const items = parsedResult.items
-      for (let item of items) {
+      for (const item of items) {
         const title = item.title || ''
         const link = item.link || ''
         const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : Date.now()
-        let { description, images } = parseDescription(item.description || null)
+        const { description, images } = parseDescription(item.description || null)
 
         const image = convertMediaToImg(item.media || []) || images[0] || ''
 
@@ -165,8 +183,9 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
 }
 
 const fetchArticles = async (urls: string[]): Promise<FetchResult> => {
+  'use cache';
   let allArticles: Article[] = []
-  let successfulSources: SuccessfulSource[] = []
+  const successfulSources: SuccessfulSource[] = []
   const currentTime = Date.now()
 
   const promises = urls.map(url => fetchArticlesFromFeed(url))
@@ -192,27 +211,26 @@ const fetchArticles = async (urls: string[]): Promise<FetchResult> => {
 
   allArticles.sort((a, b) => b.pubDate - a.pubDate)
 
-  return { articles: allArticles, successfulSources, updateTime: formatDate(new Date()) }
+  return { articles: allArticles, successfulSources, updateTime: new Date() }
 }
 
-
-
-
-
-export const fetchAllArticles = unstable_cache(
-  async (): Promise<FetchResult> => {
-    console.log(`fetchAllArticles ${formatDate(new Date())}`)
-    return fetchArticles(RSS_FEEDS)
-  },
-  ['fetchAllArticles'],
-  { revalidate: 7200, tags: ['articles'] }
-)
-
-export const fetchAllJapanArticles = unstable_cache(
-  async (): Promise<FetchResult> => {
-    console.log(`fetchAllJapanArticles ${formatDate(new Date())}`)
-    return fetchArticles(RSS_FEED_JP)
-  },
-  ['fetchAllJapanArticles'],
-  { revalidate: 7200, tags: ['articles'] }
-)
+export const fetchAllArticles = async (locale: string = 'en-US'): Promise<FetchResult> => {
+  'use cache';
+  cacheLife({
+    stale: 60 * 30, // 30 minutes
+    revalidate: 60 * 60 * 1, // 1 hour
+    expire: 60 * 60 * 2, // 2 hours
+  })
+  // cacheTag('articles-and-embeddings')
+  console.log(`fetchAllArticles (${locale}) ${formatDate(new Date())}`)
+  try {
+    const selectedFeeds = RSS_FEEDS_BY_LOCALE[locale as keyof typeof RSS_FEEDS_BY_LOCALE] ?? RSS_FEEDS_BY_LOCALE['en-US']
+    const feeds = [...selectedFeeds]
+    const result = await fetchArticles(feeds)
+    console.log(`fetchAllArticles (${locale}) completed successfully`)
+    return result
+  } catch (error) {
+    console.error(`Error in fetchAllArticles (${locale}):`, error)
+    throw error
+  }
+}

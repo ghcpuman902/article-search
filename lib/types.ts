@@ -6,7 +6,18 @@ export type Article = {
     image: string
     source: string
     distance: number | null
-    embedding: number[] | any | null
+    embedding: number[] | null
     key: string
     hidden: boolean
   }
+
+export interface Source {
+  url: string;
+  count: number;
+}
+
+export interface SuccessfulSourcesProps {
+  locale: string;
+  successfulSources: Source[];
+  updateTime: Date;
+}
