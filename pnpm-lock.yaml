@@ -99,9 +99,6 @@ importers:
       eslint-config-next:
         specifier: 15.0.4-canary.33
         version: 15.0.4-canary.33(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
-      eslint-plugin-react:
-        specifier: ^7.37.2
-        version: 7.37.2(eslint@9.16.0(jiti@1.21.6))
       globals:
         specifier: ^15.13.0
         version: 15.13.0
