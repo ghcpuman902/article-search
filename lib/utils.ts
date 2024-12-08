@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { Buffer } from 'buffer';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -219,10 +220,39 @@ export function formatDate(date: Date): string {
   
 
 export function customHash(text: string): string {
-    const str = text.split("").map(char => char.charCodeAt(0).toString(16)).join('');
-    const firstTen = str.slice(0, 10);
-    const lastTen = str.slice(-10);
-    const totalCharCount = str.length.toString();
-    const hash = firstTen + lastTen + totalCharCount;
-    return hash;
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        // Use codePointAt instead of charCodeAt to properly handle UTF-16 surrogate pairs
+        const char = text.codePointAt(i) || 0;
+        // Fast hash calculation using bitwise operations
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+        
+        // Skip the low surrogate if we just processed a surrogate pair
+        if (char > 0xFFFF) {
+            i++;
+        }
+    }
+    // Convert to hex string and combine with length for more uniqueness
+    const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
+    const lengthHex = text.length.toString(16).padStart(4, '0');
+    // Take first 15 chars of hash + 4 chars length + last 15 chars of hash
+    return hashHex.slice(0, 15) + lengthHex + hashHex.slice(-15);
+}
+
+export function encodeEmbedding(float64Array: Float64Array): string {
+    // Create a Buffer from the float64Array's ArrayBuffer
+    const buffer = Buffer.from(float64Array.buffer, float64Array.byteOffset, float64Array.byteLength);
+    // Convert the Buffer to a base64 string
+    return buffer.toString('base64');
+}
+
+export function decodeEmbedding(base64String: string): Float64Array {
+    const buffer = Buffer.from(base64String, 'base64');
+    // Create Float64Array directly from the buffer
+    return new Float64Array(
+        buffer.buffer, 
+        buffer.byteOffset, 
+        buffer.byteLength / Float64Array.BYTES_PER_ELEMENT
+    );
 }

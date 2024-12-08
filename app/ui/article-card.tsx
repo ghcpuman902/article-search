@@ -38,7 +38,7 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
 
     const zoneBadgeNames = dict["zoneBadgeNames"];
 
-    function mapValue(d: number | null) {
+    function mapValue(d: number | null | undefined) {
         if (d == null) { return { newDistance: -5, zone: 6 } }
         
         // Calculate zone based on clipped percentage
@@ -50,20 +50,13 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
         return { newDistance: percentage, zone };
     }
 
-    function dToPercentage(d: number | null) {
+    function dToPercentage(d: number | null | undefined) {
         if (d == null) { return `???%`; }
         const percentage = Math.min(100, calculateP(d));
         return `${percentage.toFixed(1)}%`;
     }
 
-    // function calculateP(d: number | null) {
-    //     if (d == null) { return 0; }
-    //     const k = -23.515; // Steepness of the sigmoid
-    //     const d0 = 0.707;  // Midpoint of the sigmoid
-    //     return ((Math.exp(k * (d - d0)) / (1 + Math.exp(k * (d - d0)))) * 0.87 - 0.07) * 100;
-    // }
-
-    function calculateP(d: number | null) {
+    function calculateP(d: number | null | undefined) {
         if (d == null) { return 0; }
         const k = -15.715; // Steepness of the sigmoid
         const d0 = 0.607;  // Midpoint of the sigmoid

@@ -7,71 +7,21 @@ import {
 } from 'next/cache'
 
 
+import { Article, SuccessfulSource, FetchResult, MediaItem } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 import * as htmlparser2 from 'htmlparser2'
 import render from 'dom-serializer'
 import { Node, Element, Text, AnyNode } from 'domhandler'
-
-// Types
-type Article = {
-  title: string
-  link: string
-  pubDate: number
-  description: string
-  image: string
-  source: string
-  distance: number | null
-  embedding: number[] | null
-  key: string
-  hidden: boolean
-}
-
-type SuccessfulSource = {
-  url: string
-  count: number
-}
-
-type FetchResult = {
-  articles: Article[]
-  successfulSources: SuccessfulSource[]
-  updateTime: Date
-}
-
-type MediaItem = {
-  url?: string | undefined
-  title?: string
-  width?: number
-  height?: number
-}
+import { RSS_SOURCES } from '@/lib/rss-sources'
 
 // Constants
-const MAX_AGE_IN_MILLISECONDS = 32 * 24 * 60 * 60 * 1000
-const HIDE_TIME_IN_MILLISECONDS = 4 * 24 * 60 * 60 * 1000
-
-const RSS_FEEDS_BY_LOCALE = {
-  'en-US': [
-    "https://scitechdaily.com/feed/",
-    "https://phys.org/rss-feed/space-news/",
-    "https://www.universetoday.com/feed",
-    "https://www.space.com/feeds/news",
-    "https://www.sciencealert.com/feed",
-    "https://skyandtelescope.org/astronomy-news/feed",
-    "https://spacenews.com/feed/",
-    "http://rss.sciam.com/ScientificAmerican-Global",
-    "https://ras.ac.uk/rss.xml",
-    "https://www.sci.news/astronomy/feed",
-    "https://www.newscientist.com/subject/space/feed/",
-    "https://theconversation.com/us/technology/articles.atom"
-  ],
-  'ja-JP': [
-    "https://sorae.info/feed",
-    "https://www.nao.ac.jp/atom.xml",
-    "http://www.astroarts.co.jp/article/feed.atom",
-    "https://subarutelescope.org/jp/atom.xml",
-    "https://alma-telescope.jp/news/feed",
-    "https://www.jaxa.jp/rss/press_j.rdf"
-  ]
-} as const
+const MAX_AGE_IN_MILLISECONDS = 32 * 24 * 60 * 60 * 1000 // 32 days
+const HIDE_TIME_IN_MILLISECONDS = 4 * 24 * 60 * 60 * 1000 // 4 days
+const SPECIAL_CASE_URLS = [
+  'nao.ac.jp',
+  'astroarts.co.jp',
+  'jaxa.jp'
+]
 
 // Helper functions
 const linkToKey = (message: string): string => {
@@ -136,101 +86,212 @@ const parseDescription = (oDescription: string | null): { description: string; i
   return { description, images }
 }
 
+// Helper function to check if URL needs special handling
+const needsSpecialHandling = (url: string): boolean => {
+  return SPECIAL_CASE_URLS.some(domain => url.includes(domain))
+}
+
 // Server actions
 export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => {
   const articles: Article[] = []
-  try {
-    const response = await fetch(url)
-    const data = await response.text()
-    const parsedResult = htmlparser2.parseFeed(data, { xmlMode: true })
-
-    const types = ['rss', 'atom', 'rdf']
-    if (!parsedResult) {
-      return []
-    }
-    if (types.includes(parsedResult.type) && parsedResult.items) {
-      const items = parsedResult.items
-      for (const item of items) {
-        const title = item.title || ''
-        const link = item.link || ''
-        const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : Date.now()
-        const { description, images } = parseDescription(item.description || null)
-
-        const image = convertMediaToImg(item.media || []) || images[0] || ''
-
-        articles.push({
-          title,
-          link,
-          pubDate,
-          description,
-          image,
-          source: url,
-          distance: null,
-          embedding: null,
-          key: linkToKey(link),
-          hidden: false
-        })
+  const maxRetries = 0
+  const waitBetweenRetries = 1000
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        await new Promise(resolve => setTimeout(resolve, waitBetweenRetries))
       }
-    } else {
-      console.error(`Unexpected XML structure for URL: ${url}, possible type: ${parsedResult.type || 'unknown'}`)
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+      // Only use special handling for specific Japanese sites
+      const useSpecialHandling = needsSpecialHandling(url)
+      const targetUrl = useSpecialHandling ? url : url.replace(/^http:/, 'https:')
+      
+      const response = await fetch(targetUrl, { 
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'PostmanRuntime/7.42.0',
+          'Accept': 'application/rss+xml, application/rdf+xml, application/atom+xml, application/xml, text/xml, */*',
+          'Accept-Language': 'en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7,zh-CN;q=0.6,zh;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'Cache-Control': 'max-age=0',
+          'Upgrade-Insecure-Requests': '1'
+        },
+        // Only add performance-critical options for problematic sites
+        ...(useSpecialHandling ? {
+          cache: 'no-store',
+          keepalive: true,
+          credentials: 'omit',
+          revalidateUnauthorized: false,
+          timeout: 15000,
+          agent: new (await import('http')).Agent({ 
+            keepAlive: true,
+            keepAliveMsecs: 3000,
+            maxSockets: 1,
+          })
+        } : {
+          cache: 'default',
+          credentials: 'same-origin'
+        }),
+        redirect: 'follow',
+        //@ts-expect-error - Adding follow-redirects behavior
+        maxRedirects: 20
+      })
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        const errorMsg = `Failed to fetch ${targetUrl} - Status: ${response.status} ${response.statusText}`
+        if (attempt < maxRetries) {
+          console.log(`${errorMsg} - Retrying (attempt ${attempt + 1} of ${maxRetries})`)
+          continue
+        }
+        console.error(errorMsg)
+        return []
+      }
+      
+      const data = await response.text()
+      const parsedResult = htmlparser2.parseFeed(data, { xmlMode: true })
+
+      const types = ['rss', 'atom', 'rdf']
+      if (!parsedResult) {
+        return []
+      }
+      if (types.includes(parsedResult.type) && parsedResult.items) {
+        const items = parsedResult.items
+        for (const item of items) {
+          const title = item.title || ''
+          const link = item.link || ''
+          const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : Date.now()
+          const { description, images } = parseDescription(item.description || null)
+
+          const image = convertMediaToImg(item.media || []) || images[0] || ''
+
+          articles.push({
+            title,
+            link,
+            pubDate,
+            description,
+            image,
+            source: url,
+            distance: undefined,
+            embedding: undefined,
+            key: linkToKey(link),
+            hidden: false
+          })
+        }
+      } else {
+        console.error(`Unexpected XML structure for URL: ${url}, possible type: ${parsedResult.type || 'unknown'}`)
+        return []
+      }
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries
+      const errorDetails = {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        url,
+        cause: error instanceof Error ? error.cause : undefined
+      }
+
+      if (error instanceof Error) {
+        if (error.cause && typeof error.cause === 'object' && 'code' in error.cause) {
+          switch (error.cause.code) {
+            case 'UNABLE_TO_VERIFY_LEAF_SIGNATURE':
+              console.warn(`SSL certificate verification failed for ${url}. Continuing anyway.`)
+              break;
+            case 'UND_ERR_SOCKET':
+              if (needsSpecialHandling(url)) {
+                console.warn(`Expected socket behavior for ${url}. Continuing with received data.`)
+                break;
+              }
+              console.warn(`Connection closed by remote server ${url}. Will retry with delay.`)
+              await new Promise(resolve => setTimeout(resolve, 2000))
+              break;
+            default:
+              console.warn(`Issue fetching feed for URL: ${url}${isLastAttempt ? ' (final attempt)' : ''}`, errorDetails)
+          }
+        }
+      }
+      
+      // Only retry for non-special case URLs
+      if (!isLastAttempt && !needsSpecialHandling(url)) {
+        console.log(`Retrying ${url} (attempt ${attempt + 1} of ${maxRetries})`)
+        continue;
+      }
       return []
     }
-  } catch (error) {
-    console.error(`Error fetching the feed for URL: ${url}`, error)
-    return []
   }
   return articles
 }
 
-const fetchArticles = async (urls: string[]): Promise<FetchResult> => {
-  'use cache';
-  let allArticles: Article[] = []
-  const successfulSources: SuccessfulSource[] = []
-  const currentTime = Date.now()
-
-  const promises = urls.map(url => fetchArticlesFromFeed(url))
-  const results = await Promise.all(promises)
-
-  for (let i = 0; i < results.length; i++) {
-    const articles = results[i]
-    if (articles.length > 0) {
-      successfulSources.push({ url: urls[i], count: articles.length })
-      allArticles = allArticles.concat(articles)
-    }
-  }
-
-  allArticles = allArticles.reduce((acc: Article[], article) => {
-    const ageInMilliseconds = currentTime - article.pubDate
-    const hidden = ageInMilliseconds > HIDE_TIME_IN_MILLISECONDS
-
-    if (ageInMilliseconds <= MAX_AGE_IN_MILLISECONDS) {
-      acc.push({ ...article, hidden })
-    }
-    return acc
-  }, [])
-
-  allArticles.sort((a, b) => b.pubDate - a.pubDate)
-
-  return { articles: allArticles, successfulSources, updateTime: new Date() }
-}
-
-export const fetchAllArticles = async (locale: string = 'en-US'): Promise<FetchResult> => {
+export const fetchAllArticles = async (category: string = 'astronomy'): Promise<FetchResult> => {
   'use cache';
   cacheLife({
     stale: 60 * 30, // 30 minutes
     revalidate: 60 * 60 * 1, // 1 hour
     expire: 60 * 60 * 2, // 2 hours
   })
-  // cacheTag('articles-and-embeddings')
-  console.log(`fetchAllArticles (${locale}) ${formatDate(new Date())}`)
+  
+  console.log(`fetchAllArticles (${category}) ${formatDate(new Date())}`)
   try {
-    const selectedFeeds = RSS_FEEDS_BY_LOCALE[locale as keyof typeof RSS_FEEDS_BY_LOCALE] ?? RSS_FEEDS_BY_LOCALE['en-US']
-    const feeds = [...selectedFeeds]
-    const result = await fetchArticles(feeds)
-    console.log(`fetchAllArticles (${locale}) completed successfully`)
-    return result
+    const selectedFeeds = RSS_SOURCES[category]?.feeds ?? RSS_SOURCES['astronomy'].feeds
+    const currentTime = Date.now()
+    
+    const results = await Promise.allSettled(
+      selectedFeeds.map(url => fetchArticlesFromFeed(url))
+    )
+    
+    const successfulSources: SuccessfulSource[] = []
+    let allArticles: Article[] = []
+    
+    // Process all results at once
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled' && result.value.length > 0) {
+        const filteredArticles = result.value.filter(article => 
+          currentTime - article.pubDate <= MAX_AGE_IN_MILLISECONDS
+        )
+        
+        if (filteredArticles.length > 0) {
+          successfulSources.push({ 
+            url: selectedFeeds[index], 
+            count: filteredArticles.length 
+          })
+          allArticles = allArticles.concat(
+            filteredArticles.map(article => ({
+              ...article,
+              hidden: (currentTime - article.pubDate) > HIDE_TIME_IN_MILLISECONDS
+            }))
+          )
+        }
+      } else {
+        console.warn(`Source ${selectedFeeds[index]} had no results or failed`)
+      }
+    })
+
+    // Sort once at the end
+    allArticles.sort((a, b) => b.pubDate - a.pubDate)
+
+    // Create final result object
+    const finalResult: FetchResult = {
+      articles: allArticles,
+      successfulSources,
+      updateTime: new Date()
+    }
+
+    console.log(`fetchAllArticles (${category}) completed with ${successfulSources.length}/${selectedFeeds.length} sources`)
+    
+    // Return a resolved promise with the final result
+    return Promise.resolve(finalResult)
   } catch (error) {
-    console.error(`Error in fetchAllArticles (${locale}):`, error)
-    throw error
+    console.warn(`Warning in fetchAllArticles (${category}):`, error)
+    // Return a resolved promise with empty result
+    return Promise.resolve({
+      articles: [],
+      successfulSources: [],
+      updateTime: new Date()
+    })
   }
 }

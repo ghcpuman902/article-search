@@ -16,7 +16,7 @@ import { Toaster } from "@/components/ui/toaster"
 // Styles
 import "./globals.css";
 import { Suspense } from "react";
-import { LoadingCardGrid, LoadingSources } from "./ui/loading-templates";
+import { LoadingSources, LoadingSearchSortFilter ,LoadingCardGrid } from "./ui/loading-templates";
 
 // Metadata configurations
 export const metadata: Metadata = {
@@ -41,18 +41,6 @@ export const viewport = {
   maximumScale: 1,
 };
 
-// // Font configurations
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",
-//   variable: "--font-geist-sans",
-//   weight: "100 900",
-// });
-
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
 
 export default async function RootLayout({
   children,
@@ -65,12 +53,12 @@ export default async function RootLayout({
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <div className="p-4 md:p-8 overflow-clip">
-          <nav className="flex justify-between items-center p-4">
+          <nav className="flex justify-between items-center">
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
               Article Search
             </h1>
           </nav>
-          <Suspense fallback={<><LoadingSources /><LoadingCardGrid /></>}>
+          <Suspense fallback={<><LoadingSources /><LoadingSearchSortFilter /><LoadingCardGrid /></>}>
             {children}
           </Suspense>
 
