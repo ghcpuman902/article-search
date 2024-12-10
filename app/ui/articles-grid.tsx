@@ -1,64 +1,68 @@
 import React from 'react'
 import { Suspense } from 'react'
 import { ArticleCard } from "./article-card"
-import { formatDate, getDictionary } from "@/lib/utils"
-// import Link from 'next/link'
-// import { LoadingCardGrid } from './loading-templates'
-import { Article } from "@/lib/types"
+import { formatDate, getDictionary, linkToKey } from "@/lib/utils"
+import { Article, FilterDaysOption, SortOption, UnifiedSearchParams } from "@/lib/types"
 import { generateEmbeddings } from '@/app/actions/getEmbeddings'
-import { customHash } from "@/lib/utils"
 import { cosineSimilarity } from 'ai'
-
 type ArticlesGridProps = {
-  category: string
   articles: Article[]
   updateTime: Date
-  params: { [key: string]: string | string[] | undefined; }
+  params: UnifiedSearchParams
+  locale: string
 }
 
-export async function ArticlesGrid({ category, articles: initialArticles, updateTime, params }: ArticlesGridProps) {
-  const locale = category === 'astronomy-jp' ? 'ja-JP' : 'en-US'
+export async function ArticlesGrid({ articles: initialArticles, updateTime, params, locale='en-US' }: ArticlesGridProps) {
   const dict = getDictionary(locale)
 
-  const resolvedParams = await params;
-
-  const queryString = Array.isArray(resolvedParams.q) ? resolvedParams.q[0] : (resolvedParams.q || '');
-  const sortingMethod = Array.isArray(resolvedParams.sort) ? resolvedParams.sort[0] : (resolvedParams.sort || 'relevance');
-  const days = Array.isArray(resolvedParams.days) ? resolvedParams.days[0] : resolvedParams.days || '4';
+  const queryString = params.q || '';
+  const sortingMethod: SortOption = params.sort || 'relevance';
+  const days: FilterDaysOption = params.days || '4';
   const filterByDays = parseInt(days) || 4;
 
   // declared here because it's being used outside of ArticleList
-  const visibleArticles = initialArticles
-    .filter(article => !article.hidden)
-    .filter(article => {
+  const filteredArticles = initialArticles
+    // Remove duplicates by checking article keys
+    .filter((article, index, self) =>
+      index === self.findIndex(a => linkToKey(a.link) === linkToKey(article.link))
+    )
+    .map(article => {
       const currentTime = Date.now();
       const daysInMs = filterByDays * 24 * 60 * 60 * 1000;
-      return (currentTime - article.pubDate) <= daysInMs;
+      const articleDate = typeof article.pubDate === 'string' 
+        ? new Date(article.pubDate).getTime()
+        : (article.pubDate && typeof article.pubDate === 'object')
+          ? (article.pubDate as Date).getTime()
+          : article.pubDate as number;
+      
+      return {
+        ...article,
+        hidden: (currentTime - articleDate) > daysInMs
+      };
     });
 
-  const ArticlesList = async ({ 
-    visibleArticles, 
-    queryString, 
-    sortingMethod 
-  }: { 
-    visibleArticles: Article[]
+  const ArticlesList = async ({
+    filteredArticles,
+    queryString,
+    sortingMethod
+  }: {
+    filteredArticles: Article[]
     queryString: string
-    sortingMethod: string 
+    sortingMethod: string
   }) => {
     'use cache'
-    const displayArticles = [...visibleArticles];
+    const displayArticles = filteredArticles.filter(article => !article.hidden);
     let embeddingsData = null;
 
     if (queryString) {
       embeddingsData = await generateEmbeddings(queryString as string, displayArticles);
     }
 
-    // Replace useMemo with direct calculation
     const articlesWithDistances = (() => {
       if (!embeddingsData) return displayArticles;
 
       const { queryEmbedding, articleEmbeddings } = embeddingsData;
-      
+
       return displayArticles.map((article) => {
         const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
         if (!articleEmbedding) return article;
@@ -75,10 +79,9 @@ export async function ArticlesGrid({ category, articles: initialArticles, update
       });
     })();
 
-    // Replace useMemo with direct sorting
     const sortedArticles = (() => {
       if (sortingMethod === 'relevance' && queryString) {
-        return [...articlesWithDistances].sort((a, b) => 
+        return [...articlesWithDistances].sort((a, b) =>
           (a.distance ?? Infinity) - (b.distance ?? Infinity)
         );
       } else {
@@ -114,26 +117,26 @@ export async function ArticlesGrid({ category, articles: initialArticles, update
       <div className="sticky top-0 left-0 right-0 z-50 py-6 flex place-content-center">
         <span className="scroll-m-20 text-center tracking-tight py-1 px-3 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-lg backdrop-saturate-200 shadow-[0px_4px_10px_2px_rgba(100,100,100,0.05)] border border-white border-opacity-70 dark:border-gray-600 dark:border-opacity-70">
           {dict.title.articles_in_past_days
-            .replace("[NUMBER]", visibleArticles.length.toString())
+            .replace("[NUMBER]", filteredArticles.filter(article => !article.hidden).length.toString())
             .replace("[DAYS]", filterByDays.toString())
           } | &quot;{queryString}&quot; | {dict.label.sort_by} {sortingMethod === "relevance" ? dict.label.relevance : dict.label.date} | {dict.label.filter_by} {getFilterText(filterByDays)}
         </span>
       </div>
       <Suspense fallback={
         <div className="items-stretch justify-center gap-6 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {visibleArticles.map((article) => (
+          {filteredArticles.map((article) => (
             <ArticleCard
               locale={locale}
-              key={customHash(`${article.title}||||${article.description.replace(/\n|\t|[ ]{4}/g, '').replace(/<[^>]*>/g, '')}`)}
+              key={article.key}
               article={article}
             />
           ))}
         </div>
       }>
-        <ArticlesList 
-          visibleArticles={visibleArticles} 
-          queryString={queryString} 
-          sortingMethod={sortingMethod} 
+        <ArticlesList
+          filteredArticles={filteredArticles}
+          queryString={queryString}
+          sortingMethod={sortingMethod}
         />
       </Suspense>
       <div className="mt-4 md:mt-8 flex flex-col w-full items-center text-neutral-400">

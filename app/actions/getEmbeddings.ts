@@ -37,7 +37,7 @@ Content: ${article.description.replace(/\n|\t|[ ]{4}/g, ' ').replace(/<[^>]*>/g,
     const cachedEmbeddings = await Promise.all(embeddingPromises)
     const missingIndices = cachedEmbeddings.map((e, i) => e === null ? i : -1).filter(i => i !== -1)
     
-    console.log(`🔍 CACHE | hits: ${cachedEmbeddings.length - missingIndices.length} | misses: ${missingIndices.length}`)
+    console.log(`🔍 KV Embed Cache | hits: ${cachedEmbeddings.length - missingIndices.length} | misses: ${missingIndices.length}`)
 
     const allEmbeddings = [...cachedEmbeddings]
     

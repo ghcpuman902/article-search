@@ -13,8 +13,11 @@ export interface Article {
 }
 
 export type SuccessfulSource = {
-  url: string
-  count: number
+  url: string;
+  shown: number;
+  hidden: number;
+  maxAge: number;
+  total: number;
 }
 
 export type FetchResult = {
@@ -35,4 +38,30 @@ export type SuccessfulSourcesProps = {
   successfulSources: SuccessfulSource[]
   articles: Article[]
   updateTime: Date
+  params: UnifiedSearchParams
+}
+
+export type SortOption = 'relevance' | 'date';
+
+export const SORT_OPTIONS: Record<SortOption, string> = {
+  'relevance': 'Relevance',
+  'date': 'Date'
+} as const;
+
+export type DurationKey = 'one-month' | 'one-week' | 'four-days' | 'fourty-eight-hours';
+export type FilterDaysOption = '30' | '7' | '4' | '2';
+
+export const DURATION_MAPPING: Record<DurationKey, FilterDaysOption> = {
+  'one-month': '30',
+  'one-week': '7',
+  'four-days': '4',
+  'fourty-eight-hours': '2'
+} as const;
+
+
+export interface UnifiedSearchParams {
+  q?: string;
+  days?: FilterDaysOption;
+  locale?: string;
+  sort?: SortOption;
 }

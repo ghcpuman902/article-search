@@ -8,10 +8,11 @@ import { Suspense } from 'react'
 import { fetchAllArticles } from '../actions/fetchArticles'
 import { redirect } from 'next/navigation';
 
-// import { Article, SuccessfulSource } from '@/lib/types'
+import { UnifiedSearchParams } from '@/lib/types';
 import { formatDate } from '@/lib/utils'
 import { RSS_SOURCES } from '@/lib/rss-sources'
-import { SearchSortFilter } from '../ui/search-sort-filter'
+import { SearchSortFilter } from '../ui/search-sort-filter';
+
 
 // Add new ServerRenderTime component
 async function ServerRenderTime() {
@@ -39,7 +40,7 @@ export async function generateMetadata({
   searchParams 
 }: { 
   params: Promise<{ category?: string }>,
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<UnifiedSearchParams>
 }) {
   const category = (await params).category || 'astronomy'
   const resolvedSearchParams = await searchParams
@@ -60,11 +61,12 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ category?: string }>,
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: Promise<UnifiedSearchParams>
 }) {
-  const category = (await params).category || 'astronomy'
-  const resolvedSearchParams = await searchParams
-  
+  const category = (await params).category || 'astronomy';
+  const resolvedSearchParams = await searchParams;
+  const locale = resolvedSearchParams.locale || 'en-US';
+
   // Handle redirect logic
   if (!resolvedSearchParams.q) {
     redirect(`/${category}?q=` + encodeURIComponent(RSS_SOURCES[category]?.defaultQuery || RSS_SOURCES['astronomy'].defaultQuery));
@@ -76,23 +78,24 @@ export default async function Page({
     <>
       <Suspense fallback={<LoadingSources />}>
         <SuccessfulSources 
-          category={category}
           successfulSources={successfulSources} 
           articles={articles} 
           updateTime={updateTime} 
+          params={resolvedSearchParams}
+          locale={locale}
         />
       </Suspense>
 
       <Suspense fallback={<LoadingSearchSortFilter />}>
-        <SearchSortFilter />
+        <SearchSortFilter locale={locale} />
       </Suspense>
 
       <Suspense fallback={<LoadingCardGrid />}>
         <ArticlesGrid
-          category={category}
           articles={articles}
           updateTime={updateTime}
           params={resolvedSearchParams}
+          locale={locale}
         />
       </Suspense>
 

@@ -8,7 +8,7 @@ import {
 
 
 import { Article, SuccessfulSource, FetchResult, MediaItem } from '@/lib/types'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getDomainNameFromUrl, linkToKey } from '@/lib/utils'
 import * as htmlparser2 from 'htmlparser2'
 import render from 'dom-serializer'
 import { Node, Element, Text, AnyNode } from 'domhandler'
@@ -20,14 +20,11 @@ const HIDE_TIME_IN_MILLISECONDS = 4 * 24 * 60 * 60 * 1000 // 4 days
 const SPECIAL_CASE_URLS = [
   'nao.ac.jp',
   'astroarts.co.jp',
-  'jaxa.jp'
+  'jaxa.jp',
+  'sciam.com'
 ]
 
-// Helper functions
-const linkToKey = (message: string): string => {
-  const sanitizedLink = message.replace(/[^a-zA-Z0-9]+/g, '-')
-  return sanitizedLink.replace(/^-+|-+$/g, '')
-}
+
 
 const convertMediaToImg = (media: MediaItem[]): string => {
   if (Array.isArray(media) && media.length > 0 && media[0].url) {
@@ -134,7 +131,7 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
             maxSockets: 1,
           })
         } : {
-          cache: 'default',
+          cache: 'force-cache',
           credentials: 'same-origin'
         }),
         redirect: 'follow',
@@ -227,15 +224,25 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
   return articles
 }
 
-export const fetchAllArticles = async (category: string = 'astronomy'): Promise<FetchResult> => {
+// Add interface for params
+interface FetchAllArticlesParams {
+  NO_FILTER?: boolean;
+}
+
+export const fetchAllArticles = async (
+  category: string = 'astronomy', 
+  params: FetchAllArticlesParams = {}
+): Promise<FetchResult> => {
   'use cache';
   cacheLife({
-    stale: 60 * 30, // 30 minutes
-    revalidate: 60 * 60 * 1, // 1 hour
-    expire: 60 * 60 * 2, // 2 hours
+    stale: 60 * 60, // 1 hour
+    revalidate: 60 * 60 * 2, // 2 hours
+    expire: 60 * 60 * 4, // 4 hours
   })
   
-  console.log(`fetchAllArticles (${category}) ${formatDate(new Date())}`)
+  const { NO_FILTER = false } = params;
+  
+  console.log(`fetchAllArticles (${category}) ${formatDate(new Date())} start`)
   try {
     const selectedFeeds = RSS_SOURCES[category]?.feeds ?? RSS_SOURCES['astronomy'].feeds
     const currentTime = Date.now()
@@ -246,30 +253,68 @@ export const fetchAllArticles = async (category: string = 'astronomy'): Promise<
     
     const successfulSources: SuccessfulSource[] = []
     let allArticles: Article[] = []
-    
+
     // Process all results at once
     results.forEach((result, index) => {
-      if (result.status === 'fulfilled' && result.value.length > 0) {
-        const filteredArticles = result.value.filter(article => 
-          currentTime - article.pubDate <= MAX_AGE_IN_MILLISECONDS
-        )
+      if (result.status === 'fulfilled') {
+        const articles = result.value;
+        const maxAgeCount = articles.filter(a => currentTime - a.pubDate > MAX_AGE_IN_MILLISECONDS).length;
+        // Only filter by MAX_AGE if NO_FILTER is false
+        const filteredArticles = NO_FILTER ? articles : articles.filter(a => currentTime - a.pubDate <= MAX_AGE_IN_MILLISECONDS);
         
         if (filteredArticles.length > 0) {
+          const hiddenCount = filteredArticles.filter(a => currentTime - a.pubDate > HIDE_TIME_IN_MILLISECONDS).length;
+          
           successfulSources.push({ 
-            url: selectedFeeds[index], 
-            count: filteredArticles.length 
-          })
+            url: selectedFeeds[index],
+            shown: filteredArticles.length - hiddenCount,
+            hidden: hiddenCount,
+            maxAge: maxAgeCount,
+            total: articles.length
+          });
+          
           allArticles = allArticles.concat(
             filteredArticles.map(article => ({
               ...article,
-              hidden: (currentTime - article.pubDate) > HIDE_TIME_IN_MILLISECONDS
+              hidden: currentTime - article.pubDate > HIDE_TIME_IN_MILLISECONDS
             }))
-          )
+          );
         }
-      } else {
-        console.warn(`Source ${selectedFeeds[index]} had no results or failed`)
       }
-    })
+    });
+
+    // Calculate totals from successfulSources
+    const totals = successfulSources.reduce((acc, source) => ({
+      shown: acc.shown + source.shown,
+      hidden: acc.hidden + source.hidden,
+      maxAge: acc.maxAge + source.maxAge,
+      total: acc.total + source.total
+    }), { shown: 0, hidden: 0, maxAge: 0, total: 0 });
+
+    // Log using stored values
+    console.log(`fetchAllArticles (${category}) ${formatDate(new Date())} completed with ${successfulSources.length}/${selectedFeeds.length} sources:`);
+    // Create table data with totals row
+    const tableData = [
+      {
+        source: 'TOTAL',
+        shown: totals.shown,
+        hidden: totals.hidden,
+        maxAge: totals.maxAge,
+        total: totals.total
+      },
+      ...selectedFeeds.map(url => {
+        const source = successfulSources.find(s => s.url === url);
+        return {
+          source: getDomainNameFromUrl(url),
+          shown: source?.shown ?? 'failed',
+          hidden: source?.hidden ?? 'failed', 
+          maxAge: source?.maxAge ?? 'failed',
+          total: source?.total ?? 'failed'
+        };
+      })
+    ];
+
+    console.table(tableData);
 
     // Sort once at the end
     allArticles.sort((a, b) => b.pubDate - a.pubDate)
@@ -281,8 +326,6 @@ export const fetchAllArticles = async (category: string = 'astronomy'): Promise<
       updateTime: new Date()
     }
 
-    console.log(`fetchAllArticles (${category}) completed with ${successfulSources.length}/${selectedFeeds.length} sources`)
-    
     // Return a resolved promise with the final result
     return Promise.resolve(finalResult)
   } catch (error) {

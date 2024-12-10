@@ -14,8 +14,19 @@ import { Badge } from "@/components/ui/badge";
 
 import { ArticleMedia } from './article-media'
 
-import { timeAgo, getDictionary, getDomainNameFromUrl } from "@/lib/utils";
-import { Article } from '@/lib/types';
+import { timeAgo, getDictionary, getDomainNameFromUrl, linkToKey } from "@/lib/utils";
+
+interface Article {
+    title: string;
+    link: string;
+    pubDate: number;
+    description: string;
+    image: string;
+    source: string;
+    hidden: boolean;
+    distance?: number;
+    key?: string;
+}
 
 interface ArticleCardProps {
     locale: string;
@@ -65,7 +76,7 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
 
     return (
         <>
-            {article ? (<Card className={`overflow-clip ${zoneBorderColors[mapValue(article.distance).zone]}`}>
+            {article ? (<Card key={linkToKey(article.link)} className={`overflow-clip ${zoneBorderColors[mapValue(article.distance).zone]}`}>
                 <ArticleMedia description={article.image} placeHolder={getDomainNameFromUrl(article.source)} />
                 <CardHeader>
                     <CardTitle><a href={article.link} target="_blank" rel="noopener noreferrer" className={`underline ${locale == 'jp' ? 'leading-relaxed' : ''}`}>{article.title}</a></CardTitle>
