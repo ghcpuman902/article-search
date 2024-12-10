@@ -1,17 +1,18 @@
 import React from 'react'
 export const experimental_ppr = true
 
-import { ArticlesGrid } from '../ui/articles-grid'
-import { SuccessfulSources } from "../ui/successful-sources"
-import { LoadingCardGrid, LoadingSearchSortFilter, LoadingSources } from '../ui/loading-templates'
+import { ArticlesGrid } from '@/app/ui/articles-grid'
+import { SuccessfulSources } from "@/app/ui/successful-sources"
+import { LoadingCardGrid, LoadingSearchSortFilter, LoadingSources } from '@/app/ui/loading-templates'
 import { Suspense } from 'react'
-import { fetchAllArticles } from '../actions/fetchArticles'
+import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';
 
 import { UnifiedSearchParams } from '@/lib/types';
 import { formatDate } from '@/lib/utils'
 import { RSS_SOURCES } from '@/lib/rss-sources'
-import { SearchSortFilter } from '../ui/search-sort-filter';
+import { SearchSortFilter } from '@/app/ui/search-sort-filter';
+import { Footer } from '@/app/ui/footer'
 
 
 // Add new ServerRenderTime component
@@ -103,6 +104,7 @@ export default async function Page({
         <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
       </div>
       <ServerRenderTime />
+      <Footer />
     </>
   )
 }

@@ -17,7 +17,6 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
-import { ModeToggle } from '@/components/mode-toggle';
 import Link from 'next/link';
 // import { LoadingSources, LoadingSearchSortFilter, LoadingCardGrid } from "./ui/loading-templates";
 
@@ -55,13 +54,8 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="p-4 md:p-8 overflow-clip">
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <div className="p-4 md:p-8 overflow-clip">
             <nav className="flex justify-between items-center">
               <Link href="/">
                 <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -69,15 +63,8 @@ export default async function RootLayout({
                 </h1>
               </Link>
             </nav>
-            <div className="">
+            <div>
               {children}
-            </div>
-
-            <div className="mt-4 md:mt-8 flex flex-col w-full items-center">
-              Made by Mangle Kuo. All rights reserved.<br />
-              <Suspense fallback={<div>Loading...</div>}>
-                <ModeToggle />
-              </Suspense>
             </div>
           </div>
           <Analytics />

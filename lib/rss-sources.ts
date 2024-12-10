@@ -1,6 +1,7 @@
 export type RSSSourceCategory = {
   feeds: string[]
   defaultQuery: string
+  group: 'news' | 'politics' | 'science' | 'business'
 }
 
 export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
@@ -19,7 +20,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.newscientist.com/subject/space/feed/",
       "https://theconversation.com/us/technology/articles.atom"
     ],
-    defaultQuery: 'attention grabbing astronomy news'
+    defaultQuery: 'attention grabbing astronomy news',
+    group: 'science'
   },
   'astronomy-jp': {
     feeds: [
@@ -30,7 +32,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://alma-telescope.jp/news/feed",
       "https://www.jaxa.jp/rss/press_j.rdf"
     ],
-    defaultQuery: '注目の天文ニュース'
+    defaultQuery: '注目の天文ニュース',
+    group: 'science'
   },
   'finance': {
     feeds: [
@@ -44,7 +47,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/global-economy?format=rss",
       "https://www.ft.com/companies/financials?format=rss"
     ],
-    defaultQuery: 'significant financial and economic news'
+    defaultQuery: 'significant financial and economic news',
+    group: 'business'
   },
   'uk-politics': {
     feeds: [
@@ -52,7 +56,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.telegraph.co.uk/politics/rss.xml",
       "https://www.ft.com/world/uk?format=rss"
     ],
-    defaultQuery: 'important UK political news and developments'
+    defaultQuery: 'important UK political news and developments',
+    group: 'politics'
   },
   'us-politics': {
     feeds: [
@@ -61,14 +66,16 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://rss.politico.com/politics-news.xml",
       "https://www.ft.com/world/us?format=rss"
     ],
-    defaultQuery: 'important US political news and developments'
+    defaultQuery: 'important US political news and developments',
+    group: 'politics'
   },
   'uk-news': {
     feeds: [
       "https://www.theguardian.com/uk-news/rss",
       "https://www.telegraph.co.uk/news/rss.xml"
     ],
-    defaultQuery: 'important UK news'
+    defaultQuery: 'important UK news',
+    group: 'news'
   },
   'international-news': {
     feeds: [
@@ -79,6 +86,7 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/world/europe?format=rss",
       "https://www.ft.com/world/mideast?format=rss"
     ],
-    defaultQuery: 'important international news and developments'
+    defaultQuery: 'important international news and developments',
+    group: 'news'
   }
 } 

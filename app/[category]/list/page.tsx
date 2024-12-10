@@ -6,6 +6,7 @@ import { RSS_SOURCES } from '@/lib/rss-sources';
 import { LoadingSources, LoadingCardGrid } from '@/app/ui/loading-templates';
 import ArticleTable from '@/app/ui/article-table';
 import { SuccessfulSources } from '@/app/ui/successful-sources';
+import { Footer } from '@/app/ui/footer';
 
 export default async function ListPage({
     params,
@@ -43,6 +44,7 @@ export default async function ListPage({
             <div className="flex flex-col w-full items-center text-center text-neutral-400">
                 <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
             </div>
+            <Footer />  
         </>
     )
 }
