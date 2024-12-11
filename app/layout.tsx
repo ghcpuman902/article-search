@@ -11,14 +11,13 @@ import { Analytics } from '@vercel/analytics/react';
 
 // Components
 import { Toaster } from "@/components/ui/toaster"
-// import { LocaleDetector } from './ui/locale-detector';
 
 // Styles
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
-import Link from 'next/link';
-// import { LoadingSources, LoadingSearchSortFilter, LoadingCardGrid } from "./ui/loading-templates";
+import { Header } from './ui/header';
+import { Link } from 'lucide-react';
 
 // Metadata configurations
 export const metadata: Metadata = {
@@ -54,15 +53,17 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="p-4 md:p-8 overflow-clip">
-            <nav className="flex justify-between items-center">
-              <Link href="/">
-                <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-                  Article Search
-                </h1>
-              </Link>
-            </nav>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="p-4 md:p-8 overflow-clip">
+            <Suspense fallback={
+              <nav className="flex justify-between items-center">
+                <Link href="/">
+                  <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
+                </Link>
+              </nav>
+            }>
+              <Header />
+            </Suspense>
             <div>
               {children}
             </div>

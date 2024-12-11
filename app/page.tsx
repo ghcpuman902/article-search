@@ -19,7 +19,6 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6 capitalize">
               {groupName.replace('-', ' ')}
             </h2>
-
             <div className="grid grid-cols-1 gap-6">
               {categories.map(category => (
                 <Link

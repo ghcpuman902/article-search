@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { ArticleMedia } from './article-media'
 
-import { timeAgo, getDictionary, getDomainNameFromUrl, linkToKey } from "@/lib/utils";
+import { timeAgo, getDictionary, getDomainNameFromUrl, linkToKey, cn } from "@/lib/utils";
 
 interface Article {
     title: string;
@@ -51,11 +51,11 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
 
     function mapValue(d: number | null | undefined) {
         if (d == null) { return { newDistance: -5, zone: 6 } }
-        
+
         // Calculate zone based on clipped percentage
         const percentage = Math.max(0, Math.min(100, calculateP(d)));
         let zone = Math.floor(percentage / 20); // Split 0-100 into 5 zones
-        
+
         if (zone > 5) { zone = 5; } // Safeguard for 100% case
 
         return { newDistance: percentage, zone };
@@ -79,7 +79,13 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
             {article ? (<Card key={linkToKey(article.link)} className={`overflow-clip ${zoneBorderColors[mapValue(article.distance).zone]}`}>
                 <ArticleMedia description={article.image} placeHolder={getDomainNameFromUrl(article.source)} />
                 <CardHeader>
-                    <CardTitle><a href={article.link} target="_blank" rel="noopener noreferrer" className={`underline ${locale == 'jp' ? 'leading-relaxed' : ''}`}>{article.title}</a></CardTitle>
+                    <CardTitle>
+                        <a href={article.link} target="_blank" rel="noopener noreferrer">
+                            <h3 className={cn("scroll-m-20 text-2xl font-semibold tracking-tight leading-none underline", {
+                                "leading-relaxed": ['ja-JP', 'zh-CN', 'zh-TW'].includes(locale)
+                            })}>{article.title}</h3>
+                        </a>
+                    </CardTitle>
                     <div className="text-sm text-muted-foreground pt-1"><Badge variant="secondary" className="mr-1" suppressHydrationWarning>{timeAgo(new Date(article.pubDate), locale)}</Badge><Badge variant="secondary" className={zoneColors[mapValue(article.distance).zone]}>{zoneBadgeNames[mapValue(article.distance).zone]} ({dToPercentage(article.distance)})</Badge></div>
                 </CardHeader>
                 <CardContent>
