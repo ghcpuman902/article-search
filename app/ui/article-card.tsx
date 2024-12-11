@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo, useMemo } from 'react'
 
 import Link from 'next/link';
 
@@ -33,7 +33,10 @@ interface ArticleCardProps {
     article: Article;
 }
 
-export function ArticleCard({ locale, article }: ArticleCardProps) {
+export const ArticleCard = memo(function ArticleCard({ article, locale }: ArticleCardProps) {
+    // Precompute expensive calculations
+    const timeAgoDate = useMemo(() => timeAgo(new Date(article.pubDate), locale), [article.pubDate, locale]);
+    
     const dict = getDictionary(locale);
     const colorData = ["amber|100|600", "sky|100|400", "sky|200|600", "blue|200|600", "emerald|200|600", "violet|200|600", "neutral|200|600"];
 
@@ -86,7 +89,7 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
                             })}>{article.title}</h3>
                         </a>
                     </CardTitle>
-                    <div className="text-sm text-muted-foreground pt-1"><Badge variant="secondary" className="mr-1" suppressHydrationWarning>{timeAgo(new Date(article.pubDate), locale)}</Badge><Badge variant="secondary" className={zoneColors[mapValue(article.distance).zone]}>{zoneBadgeNames[mapValue(article.distance).zone]} ({dToPercentage(article.distance)})</Badge></div>
+                    <div className="text-sm text-muted-foreground pt-1"><Badge variant="secondary" className="mr-1" suppressHydrationWarning>{timeAgoDate}</Badge><Badge variant="secondary" className={zoneColors[mapValue(article.distance).zone]}>{zoneBadgeNames[mapValue(article.distance).zone]} ({dToPercentage(article.distance)})</Badge></div>
                 </CardHeader>
                 <CardContent>
                     {/* <Suspense fallback={<AspectRatio ratio={16 / 9}>
@@ -101,4 +104,7 @@ export function ArticleCard({ locale, article }: ArticleCardProps) {
             </Card>) : null}
         </>
     );
-}
+}, (prevProps, nextProps) => {
+    // Custom comparison function for memo
+    return prevProps.article.key === nextProps.article.key;
+});

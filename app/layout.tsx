@@ -39,7 +39,6 @@ export const viewport = {
   ],
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
 };
 
 
@@ -56,18 +55,22 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="p-4 md:p-8 overflow-clip">
             <Suspense fallback={
-              <nav className="flex justify-between items-center">
-                <Link href="/">
-                  <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
-                </Link>
-              </nav>
+              <header role="banner">
+                <nav className="flex justify-between items-center">
+                  <Link href="/">
+                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
+                  </Link>
+                </nav>
+              </header>
             }>
               <Header />
             </Suspense>
-            <div>
+            
+            <main role="main">
               {children}
-            </div>
+            </main>
           </div>
+          
           <Analytics />
           <Suspense fallback={<div>Loading...</div>}>
             <Toaster />

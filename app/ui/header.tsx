@@ -28,39 +28,41 @@ export function Header() {
     }, [segment])
 
     return (
-        <nav className="flex justify-between items-center">
-            <Link href="/">
-                <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-                    <div className="relative">
-                        {/* Long version - Article Search */}
-                        <div className="flex flex-wrap items-center">
-                            <div className="whitespace-nowrap">
-                                <div className="inline-block">A</div>
-                                <div className={cn(
-                                    transitionClasses.base,
-                                    segment ? transitionClasses.collapsed : transitionClasses.expanded
-                                )}>rticle</div>
-                                <div className="transition-all duration-300 ease-out inline-block">S</div>
-                                <div className={cn(
-                                    transitionClasses.base,
-                                    segment ? transitionClasses.collapsed : transitionClasses.expanded
-                                )}>earch</div>
-                                <div className={cn(
-                                    transitionClasses.base,
-                                    segment ? transitionClasses.expanded : transitionClasses.collapsed
-                                )}>
-                                    {displayedSegment && (
-                                        <span className="inline-block">
-                                            {`/ ${displayedSegment.charAt(0).toUpperCase() + displayedSegment.slice(1)}`}
-                                        </span>
-                                    )}
+        <header role="banner">
+            <nav className="flex justify-between items-center" role="navigation">
+                <Link href="/">
+                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+                        <div className="relative">
+                            {/* Long version - Article Search */}
+                            <div className="flex flex-wrap items-center">
+                                <div className="whitespace-nowrap">
+                                    <div className="inline-block">A</div>
+                                    <div className={cn(
+                                        transitionClasses.base,
+                                        segment ? transitionClasses.collapsed : transitionClasses.expanded
+                                    )}>rticle</div>
+                                    <div className="transition-all duration-300 ease-out inline-block">S</div>
+                                    <div className={cn(
+                                        transitionClasses.base,
+                                        segment ? transitionClasses.collapsed : transitionClasses.expanded
+                                    )}>earch</div>
+                                    <div className={cn(
+                                        transitionClasses.base,
+                                        segment ? transitionClasses.expanded : transitionClasses.collapsed
+                                    )}>
+                                        {displayedSegment && (
+                                            <span className="inline-block">
+                                                {`/ ${displayedSegment.charAt(0).toUpperCase() + displayedSegment.slice(1)}`}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
-                    </div>
-                </h1>
-            </Link>
-        </nav>
+                    </h1>
+                </Link>
+            </nav>
+        </header>
     )
 }

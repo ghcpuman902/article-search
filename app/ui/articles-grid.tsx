@@ -2,9 +2,10 @@ import React, { memo } from 'react'
 import { Suspense } from 'react'
 import { ArticleCard } from "./article-card"
 import { Dictionary, formatDate, getDictionary, linkToKey } from "@/lib/utils"
-import { Article, SortOption, UnifiedSearchParams } from "@/lib/types"
+import { Article, EmbeddingsData, SortOption, UnifiedSearchParams } from "@/lib/types"
 import { generateEmbeddings } from '@/app/actions/getEmbeddings'
 import { cosineSimilarity } from 'ai'
+import { Pagination } from "@/app/ui/pagination"
 
 // Constants at file level
 const FILTER_TEXT_MAP = {
@@ -14,6 +15,9 @@ const FILTER_TEXT_MAP = {
   2: 'fourty-eight-hours'
 } as const;
 
+// Constants for pagination
+const ARTICLES_PER_PAGE = 50;
+
 type ArticlesGridProps = {
   articles: Article[]
   updateTime: Date
@@ -22,45 +26,17 @@ type ArticlesGridProps = {
 }
 
 const ArticlesList = memo(async function ArticlesList({
-  filteredArticles,
-  queryString,
-  sortingMethod,
+  articles,
   locale
 }: {
-  filteredArticles: Article[]
-  queryString: string
-  sortingMethod: string
+  articles: Article[]
   locale: string
 }) {
   'use cache'
-  
-  const displayArticles = filteredArticles.filter(article => !article.hidden);
-  const embeddingsData = queryString 
-    ? await generateEmbeddings(queryString, displayArticles)
-    : null;
-
-  const articlesWithDistances = embeddingsData 
-    ? displayArticles.map((article) => {
-        const { queryEmbedding, articleEmbeddings } = embeddingsData;
-        const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
-        if (!articleEmbedding) return article;
-
-        const distance = 1 - cosineSimilarity(
-          Array.from(queryEmbedding ?? []),
-          Array.from(articleEmbedding.embedding ?? [])
-        );
-
-        return { ...article, distance };
-      })
-    : displayArticles;
-
-  const sortedArticles = (sortingMethod === 'relevance' && queryString)
-    ? [...articlesWithDistances].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-    : [...articlesWithDistances].sort((a, b) => b.pubDate - a.pubDate);
 
   return (
     <div className="items-stretch justify-center gap-6 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {sortedArticles.map((article) => (
+      {articles.map((article) => (
         <ArticleCard
           locale={locale}
           key={article.key}
@@ -121,6 +97,11 @@ function filterArticles(articles: Article[], filterByDays: number) {
     });
 }
 
+// Add this helper function
+const getFilterText = (days: number) => {
+  return FILTER_TEXT_MAP[days as keyof typeof FILTER_TEXT_MAP] || 'four-days';
+};
+
 export async function ArticlesGrid({ 
   articles: initialArticles, 
   updateTime, 
@@ -133,13 +114,41 @@ export async function ArticlesGrid({
   const queryString = params.q || '';
   const sortingMethod: SortOption = params.sort || 'relevance';
   const filterByDays = parseInt(params.days || '4') || 4;
+  const currentPage = parseInt(params.page || '1');
 
-  // Filter articles without useMemo
+  // Filter articles
   const filteredArticles = filterArticles(initialArticles, filterByDays);
-  const visibleArticlesCount = filteredArticles.filter(article => !article.hidden).length;
+  const visibleArticles = filteredArticles.filter(article => !article.hidden);
+  
+  // Generate embeddings for ALL filtered articles if using relevance sort
+  const embeddingsData = (sortingMethod === 'relevance' && queryString)
+    ? await generateEmbeddings(queryString, visibleArticles) as EmbeddingsData
+    : null;
 
-  const getFilterText = (days: number) =>
-    dict.label[FILTER_TEXT_MAP[days as keyof typeof FILTER_TEXT_MAP] ?? 'four-days'];
+  // Sort ALL articles by relevance or date
+  const sortedArticles = embeddingsData
+    ? visibleArticles.map((article) => {
+        const { queryEmbedding, articleEmbeddings } = embeddingsData;
+        const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
+        if (!articleEmbedding) return article;
+
+        const distance = 1 - cosineSimilarity(
+          Array.from(queryEmbedding),
+          Array.from(articleEmbedding.embedding)
+        );
+
+        return { ...article, distance };
+      }).sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+    : visibleArticles.sort((a, b) => b.pubDate - a.pubDate);
+
+  const visibleArticlesCount = sortedArticles.length;
+  const totalPages = Math.ceil(visibleArticlesCount / ARTICLES_PER_PAGE);
+
+  // Then paginate the sorted results
+  const paginatedArticles = sortedArticles.slice(
+    (currentPage - 1) * ARTICLES_PER_PAGE,
+    currentPage * ARTICLES_PER_PAGE
+  );
 
   return (
     <>
@@ -153,23 +162,27 @@ export async function ArticlesGrid({
       />
       
       <Suspense fallback={
-        <div className="items-stretch justify-center gap-6 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {filteredArticles.map((article) => (
-            <ArticleCard
-              locale={locale}
-              key={article.key}
-              article={article}
-            />
-          ))}
-        </div>
+        <ArticlesList
+          articles={Array(ARTICLES_PER_PAGE).fill(null).map((_, i) => 
+            paginatedArticles[i] || filteredArticles[i]
+          )}
+          locale={locale}
+        />
       }>
         <ArticlesList
-          filteredArticles={filteredArticles}
-          queryString={queryString}
-          sortingMethod={sortingMethod}
+          articles={paginatedArticles}
           locale={locale}
         />
       </Suspense>
+
+      {visibleArticlesCount > ARTICLES_PER_PAGE && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          basePath=""
+          searchParams={params}
+        />
+      )}
 
       <div className="mt-4 md:mt-8 flex flex-col w-full items-center text-neutral-400">
         server articles: {formatDate(updateTime)}

@@ -64,4 +64,13 @@ export interface UnifiedSearchParams {
   days?: FilterDaysOption;
   locale?: string;
   sort?: SortOption;
+  page?: string;
+}
+
+export interface EmbeddingsData {
+  queryEmbedding: Float64Array;
+  articleEmbeddings: {
+    key: string;
+    embedding: Float64Array;
+  }[];
 }

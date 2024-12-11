@@ -199,6 +199,10 @@ export function getDictionary(locale?: string): Dictionary {
             "en-US": "Next",
             "ja-JP": "次へ"
         },
+        "search_input": {
+            "en-US": "Search articles",
+            "ja-JP": "記事を検索"
+        },
     };
 
     const selectedLocale = locale === 'ja-JP' ? 'ja-JP' : 'en-US';
@@ -224,7 +228,8 @@ export function getDictionary(locale?: string): Dictionary {
             "fourty-eight-hours": translations["fourty-eight-hours"][selectedLocale],
             "having-issues": translations["having-issues"][selectedLocale],
             "issue-alert-title": translations["issue-alert-title"][selectedLocale],
-            "issue-alert-description": translations["issue-alert-description"][selectedLocale]
+            "issue-alert-description": translations["issue-alert-description"][selectedLocale],
+            search_input: translations.search_input[selectedLocale]
         },
         button: {
             search: translations.search[selectedLocale],

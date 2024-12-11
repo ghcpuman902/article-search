@@ -58,15 +58,21 @@ export const SearchSortFilter: React.FC<{
     };
 
     const updateSortingMethod = (value: string) => {
-        setOptimisticSort(value as SortOption); // Optimistically update sort
-        setIsLoading(true); // Set loading state
-        updateURL({ sort: value });
+        setOptimisticSort(value as SortOption);
+        setIsLoading(true);
+        updateURL({ 
+            sort: value,
+            page: '1'  // Reset to page 1 on sort change
+        });
     };
 
     const updateFilterDays = (value: DurationKey) => {
-        setOptimisticDays(DURATION_MAPPING[value]); // Optimistically update days
-        setIsLoading(true); // Set loading state
-        updateURL({ days: DURATION_MAPPING[value] });
+        setOptimisticDays(DURATION_MAPPING[value]);
+        setIsLoading(true);
+        updateURL({ 
+            days: DURATION_MAPPING[value],
+            page: '1'  // Reset to page 1 on filter change
+        });
     };
 
     const handleSearch = () => {
@@ -76,7 +82,10 @@ export const SearchSortFilter: React.FC<{
         if (track) {
             track('ArticleSearch', { queryString: queryValue });
         }
-        updateURL({ q: queryValue });
+        updateURL({ 
+            q: queryValue,
+            page: '1'  // Reset to page 1 on new search
+        });
     };
 
     // Update useEffect to reset loading state
@@ -111,6 +120,9 @@ export const SearchSortFilter: React.FC<{
     return (
         <div className="mt-6 w-full flex flex-wrap justify-center">
             <div className="w-full flex">
+                <Label htmlFor="query" className="sr-only">
+                    {dict.label.search_input}
+                </Label>
                 <Input 
                     id="query" 
                     type="text" 
@@ -132,6 +144,7 @@ export const SearchSortFilter: React.FC<{
                     onClick={handleSearch}
                     disabled={isLoading}
                     style={isLoading ? rainbowStyle : undefined}
+                    aria-label={dict.button.search}
                 >
                     {dict.button.search}
                 </Button>
@@ -143,10 +156,21 @@ export const SearchSortFilter: React.FC<{
                     id="sort-by-options" 
                     className="flex gap-2"
                     onValueChange={updateSortingMethod}
+                    aria-label={dict.label.sort_by}
                 >
-                    <RadioGroupItem value="relevance" id="relevance" checked={optimisticSort === "relevance"} />
+                    <RadioGroupItem 
+                        value="relevance" 
+                        id="relevance" 
+                        checked={optimisticSort === "relevance"}
+                        aria-label={dict.label.relevance}
+                    />
                     <Label className="mr-1" htmlFor="relevance">{dict.label.relevance}</Label>
-                    <RadioGroupItem value="date" id="date" checked={optimisticSort === "date"} />
+                    <RadioGroupItem 
+                        value="date" 
+                        id="date" 
+                        checked={optimisticSort === "date"}
+                        aria-label={dict.label.date}
+                    />
                     <Label className="mr-1" htmlFor="date">{dict.label.date}</Label>
                 </RadioGroup>
             </div>
@@ -157,13 +181,15 @@ export const SearchSortFilter: React.FC<{
                     id="filter-by-options" 
                     className="flex gap-2"
                     onValueChange={updateFilterDays}
+                    aria-label={dict.label.filter_by}
                 >
                     {Object.entries(DURATION_MAPPING).map(([key, value]) => (
                         <React.Fragment key={key}>
                             <RadioGroupItem 
                                 value={key} 
                                 id={key} 
-                                checked={optimisticDays === value} 
+                                checked={optimisticDays === value}
+                                aria-label={dict.label[key as DurationKey]}
                             />
                             <Label className="mr-1" htmlFor={key}>
                                 {dict.label[key as DurationKey]}
