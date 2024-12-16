@@ -24,7 +24,7 @@ export default async function ListPage({
         redirect(`/${category}?q=` + encodeURIComponent(RSS_SOURCES[category]?.defaultQuery || RSS_SOURCES['astronomy'].defaultQuery));
     }
 
-    const { articles, successfulSources, updateTime } = await fetchAllArticles(category, { NO_FILTER: true });
+    const { articles, successfulSources, updateTime } = await fetchAllArticles(category);
 
     return (
         <>

@@ -76,9 +76,9 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
       {startPage > 1 && (
         <>
           <Button variant="outline" size="icon" asChild>
-            <Link href={createPageUrl(1)} aria-label="Go to page 1">
+            <Link href={createPageUrl(1)} aria-label="Page 1">
               1
-              <span className="sr-only">Go to page 1</span>
+              <span className="sr-only">Page</span>
             </Link>
           </Button>
           {startPage > 2 && <span className="text-muted-foreground">...</span>}
@@ -95,11 +95,11 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
           <Link 
             href={createPageUrl(page)}
             prefetch={shouldPrefetch(page)}
-            aria-label={`Go to page ${page}`}
+            aria-label={`Page ${page}`}
             aria-current={currentPage === page ? 'page' : undefined}
           >
             {page}
-            <span className="sr-only">Go to page {page}</span>
+            <span className="sr-only">Page {page}</span>
           </Link>
         </Button>
       ))}
@@ -108,9 +108,9 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
         <>
           {endPage < totalPages - 1 && <span className="text-muted-foreground">...</span>}
           <Button variant="outline" size="icon" asChild>
-            <Link href={createPageUrl(totalPages)} aria-label="Go to page last">
+            <Link href={createPageUrl(totalPages)} aria-label={`Page ${totalPages}`}>
               {totalPages}
-              <span className="sr-only">Go to page last</span>
+              <span className="sr-only">Page</span>
             </Link>
           </Button>
         </>

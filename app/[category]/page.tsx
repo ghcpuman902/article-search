@@ -1,5 +1,6 @@
-import React from 'react'
 export const experimental_ppr = true
+
+import React from 'react'
 
 import { ArticlesGrid } from '@/app/ui/articles-grid'
 import { SuccessfulSources } from "@/app/ui/successful-sources"
@@ -8,7 +9,7 @@ import { Suspense } from 'react'
 import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';
 
-import { UnifiedSearchParams } from '@/lib/types';
+import { FilterDaysOption, SortOption, UnifiedSearchParams } from '@/lib/types';
 import { formatDate } from '@/lib/utils'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 import { SearchSortFilter } from '@/app/ui/search-sort-filter';
@@ -27,12 +28,22 @@ async function ServerRenderTime() {
 
 // Add generateStaticParams export with URL encoded queries
 export async function generateStaticParams() {
-  return Object.keys(RSS_SOURCES).flatMap(category => [
-    { 
-      category,
-      q: encodeURIComponent(RSS_SOURCES[category].defaultQuery)
-    }
-  ])
+  const categories = Object.keys(RSS_SOURCES);
+  const sortOptions: SortOption[] = ['relevance', 'date'];
+  const durationOptions: FilterDaysOption[] = ['30', '7', '4', '2'];
+  
+  return categories.flatMap(category => 
+    sortOptions.flatMap(sort => 
+      durationOptions.map(days => ({
+        category,
+        searchParams: {
+          q: encodeURIComponent(RSS_SOURCES[category].defaultQuery),
+          sort,
+          days,
+        }
+      }))
+    )
+  );
 }
 
 // Update generateMetadata to handle Promise
@@ -77,7 +88,7 @@ export default async function Page({
 
   return (
     <>
-      <Suspense fallback={<LoadingSources />}>
+      <Suspense fallback={<LoadingSources locale={locale} />}>
         <SuccessfulSources 
           successfulSources={successfulSources} 
           articles={articles} 
@@ -87,11 +98,11 @@ export default async function Page({
         />
       </Suspense>
 
-      <Suspense fallback={<LoadingSearchSortFilter />}>
+      <Suspense fallback={<LoadingSearchSortFilter locale={locale} />}>
         <SearchSortFilter locale={locale} />
       </Suspense>
 
-      <Suspense fallback={<LoadingCardGrid />}>
+      <Suspense fallback={<LoadingCardGrid locale={locale} />}>
         <ArticlesGrid
           articles={articles}
           updateTime={updateTime}
@@ -100,9 +111,13 @@ export default async function Page({
         />
       </Suspense>
 
-      <div className="flex flex-col w-full items-center text-center text-neutral-400">
-        <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
-      </div>
+      <Suspense fallback={<div className="flex flex-col w-full items-center text-center text-neutral-400">
+        <p>Search Params: <code className="font-mono bg-neutral-100 dark:bg-neutral-800 animate-pulse">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></p>
+      </div>}>
+        <div className="flex flex-col w-full items-center text-center text-neutral-400">
+          <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
+        </div>
+      </Suspense>
       <ServerRenderTime />
       <Footer />
     </>

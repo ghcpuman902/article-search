@@ -2,8 +2,8 @@ import React, { memo } from 'react'
 import { Suspense } from 'react'
 import { ArticleCard } from "./article-card"
 import { Dictionary, formatDate, getDictionary, linkToKey } from "@/lib/utils"
-import { Article, EmbeddingsData, SortOption, UnifiedSearchParams } from "@/lib/types"
-import { generateEmbeddings } from '@/app/actions/getEmbeddings'
+import { Article, SortOption, UnifiedSearchParams } from "@/lib/types"
+import { generateArticleEmbeddings, generateQueryEmbedding } from '@/app/actions/getEmbeddings'
 import { cosineSimilarity } from 'ai'
 import { Pagination } from "@/app/ui/pagination"
 
@@ -36,10 +36,10 @@ const ArticlesList = memo(async function ArticlesList({
 
   return (
     <div className="items-stretch justify-center gap-6 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {articles.map((article) => (
+      {articles.map((article, index) => (
         <ArticleCard
           locale={locale}
-          key={article.key}
+          key={article?.key || `loading-${index}`}
           article={article}
         />
       ))}
@@ -120,31 +120,35 @@ export async function ArticlesGrid({
   const filteredArticles = filterArticles(initialArticles, filterByDays);
   const visibleArticles = filteredArticles.filter(article => !article.hidden);
   
-  // Generate embeddings for ALL filtered articles if using relevance sort
-  const embeddingsData = (sortingMethod === 'relevance' && queryString)
-    ? await generateEmbeddings(queryString, visibleArticles) as EmbeddingsData
-    : null;
+  // Generate article embeddings for similarity scores in UI
+  const articleEmbeddings = await generateArticleEmbeddings(visibleArticles);
+  let sortedArticles = visibleArticles;
+  
+  if (queryString && sortingMethod === 'relevance') {
+    // Only generate query embedding if sorting by relevance
+    const queryEmbedding = await generateQueryEmbedding(queryString);
 
-  // Sort ALL articles by relevance or date
-  const sortedArticles = embeddingsData
-    ? visibleArticles.map((article) => {
-        const { queryEmbedding, articleEmbeddings } = embeddingsData;
-        const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
-        if (!articleEmbedding) return article;
+    // Sort by relevance
+    sortedArticles = visibleArticles.map((article) => {
+      const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
+      if (!articleEmbedding) return article;
 
-        const distance = 1 - cosineSimilarity(
-          Array.from(queryEmbedding),
-          Array.from(articleEmbedding.embedding)
-        );
+      const distance = 1 - cosineSimilarity(
+        Array.from(queryEmbedding),
+        Array.from(articleEmbedding.embedding)
+      );
 
-        return { ...article, distance };
-      }).sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-    : visibleArticles.sort((a, b) => b.pubDate - a.pubDate);
+      return { ...article, distance };
+    }).sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+  } else {
+    // Sort by date
+    sortedArticles = visibleArticles.sort((a, b) => b.pubDate - a.pubDate);
+  }
 
   const visibleArticlesCount = sortedArticles.length;
   const totalPages = Math.ceil(visibleArticlesCount / ARTICLES_PER_PAGE);
 
-  // Then paginate the sorted results
+  // Paginate the sorted results
   const paginatedArticles = sortedArticles.slice(
     (currentPage - 1) * ARTICLES_PER_PAGE,
     currentPage * ARTICLES_PER_PAGE
