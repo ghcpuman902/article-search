@@ -131,7 +131,7 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
             maxSockets: 1,
           })
         } : {
-          cache: 'force-cache',
+          cache: 'no-store',
           credentials: 'same-origin'
         }),
         redirect: 'follow',

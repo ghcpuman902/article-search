@@ -5,7 +5,12 @@ import { Dictionary, formatDate, getDictionary, linkToKey } from "@/lib/utils"
 import { Article, SortOption, UnifiedSearchParams } from "@/lib/types"
 import { generateArticleEmbeddings, generateQueryEmbedding } from '@/app/actions/getEmbeddings'
 import { cosineSimilarity } from 'ai'
-import { Pagination } from "@/app/ui/pagination"
+import { Pagination } from "@/components/articles/pagination"
+import {
+  // unstable_cacheTag as cacheTag,
+  unstable_cacheLife as cacheLife,
+  // revalidateTag,
+} from 'next/cache'
 
 // Constants at file level
 const FILTER_TEXT_MAP = {
@@ -108,6 +113,12 @@ export async function ArticlesGrid({
   params, 
   locale='en-US' 
 }: ArticlesGridProps) {
+  'use cache'
+  cacheLife({
+    stale: 0.5 * 60 * 60, // 30 minutes
+    revalidate: 0.5 * 60 * 60, // 30 minutes
+    expire: 0.5 * 60 * 60, // 30 minutes
+  })
   const dict = getDictionary(locale);
   
   // Parse params

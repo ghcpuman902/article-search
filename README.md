@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## caching structure
+|- layout.tsx (main shell, maintain nagivation state, static rendering, import Header/Nav (client component that useSelectedLayoutSegment) but with suspense fallback)
+|- page.tsx (static from rss sources, auto revalidate every day to response to potential data source changes like db in the future, with cache tag that can be used to invalidate cache when user update db)
+|- [category]/page.tsx (dynamic, but use getArticles which is cached and revalidate every 2 hrs, and pass data to ArticleGrid)
+    |-- ArticlesGrid.tsx (server component, cached, using article input as cache key. and search params)
+|- [category]/page.tsx (static rendering, import ArticlesGrid but with suspense fallback)
 
-## Getting Started
 
-First, run the development server:
+KEY POINT:
+- nothing is embedded unless necessary
+- cache as much as possible
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+when user visit new page:
+- load articles
+- filter by filter criteria -> render first
+- calculate their embeddings
+- sort by distance or date
+- render
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+when user visit page with same cat but new query
+- load articles (cache HIT)
+- filter by filter criteria -> cache HIT hopefully -> render caceh hit hopefully
+- caculate their embeddings -> cache HIT, same set of articles
+- sort by new distance or date
+- render
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Sort by distance is important as future things like newsletter depends on it
+- if any default query yields <40%, dont bother show to user or use in future calculation -> maybe will contradict with "embed only necessary"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The percentage is different for each of the keywords and pages and sources.
+Maybe use 4o-mini to tag?

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { RSS_SOURCES } from '@/lib/rss-sources'
-import { Footer } from '@/app/ui/footer'
+import { Footer } from '@/components/articles/footer'
 
 export default function HomePage() {
   // Group the categories by their group property

@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { LoadingSources, LoadingSearchSortFilter, LoadingCardGrid } from "../ui/loading-templates";
+import { LoadingSources, LoadingSearchSortFilter, LoadingCardGrid } from "@/components/articles/loading-templates";
 
 export default function CategoryLayout({
   children,

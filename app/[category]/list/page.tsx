@@ -3,10 +3,10 @@ import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';
 import { UnifiedSearchParams } from '@/lib/types';
 import { RSS_SOURCES } from '@/lib/rss-sources';
-import { LoadingSources, LoadingCardGrid } from '@/app/ui/loading-templates';
-import ArticleTable from '@/app/ui/article-table';
-import { SuccessfulSources } from '@/app/ui/successful-sources';
-import { Footer } from '@/app/ui/footer';
+import { LoadingSources, LoadingCardGrid } from '@/components/articles/loading-templates';
+import ArticleTable from '@/components/articles/article-table';
+import { SuccessfulSources } from '@/components/articles/successful-sources';
+import { Footer } from '@/components/articles/footer';
 
 export default async function ListPage({
     params,

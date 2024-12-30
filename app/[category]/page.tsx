@@ -2,18 +2,18 @@ export const experimental_ppr = true
 
 import React from 'react'
 
-import { ArticlesGrid } from '@/app/ui/articles-grid'
-import { SuccessfulSources } from "@/app/ui/successful-sources"
-import { LoadingCardGrid, LoadingSearchSortFilter, LoadingSources } from '@/app/ui/loading-templates'
+import { ArticlesGrid } from '@/components/articles/articles-grid'
+import { SuccessfulSources } from "@/components/articles/successful-sources"
+import { LoadingCardGrid, LoadingSearchSortFilter, LoadingSources } from '@/components/articles/loading-templates'
 import { Suspense } from 'react'
 import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';
 
-import { FilterDaysOption, SortOption, UnifiedSearchParams } from '@/lib/types';
+import { UnifiedSearchParams } from '@/lib/types';
 import { formatDate } from '@/lib/utils'
 import { RSS_SOURCES } from '@/lib/rss-sources'
-import { SearchSortFilter } from '@/app/ui/search-sort-filter';
-import { Footer } from '@/app/ui/footer'
+import { SearchSortFilter } from '@/components/articles/search-sort-filter';
+import { Footer } from '@/components/articles/footer'
 
 
 // Add new ServerRenderTime component
@@ -27,24 +27,24 @@ async function ServerRenderTime() {
 }
 
 // Add generateStaticParams export with URL encoded queries
-export async function generateStaticParams() {
-  const categories = Object.keys(RSS_SOURCES);
-  const sortOptions: SortOption[] = ['relevance', 'date'];
-  const durationOptions: FilterDaysOption[] = ['30', '7', '4', '2'];
+// export async function generateStaticParams() {
+//   const categories = Object.keys(RSS_SOURCES);
+//   const sortOptions: SortOption[] = ['relevance', 'date'];
+//   const durationOptions: FilterDaysOption[] = ['30', '7', '4', '2'];
   
-  return categories.flatMap(category => 
-    sortOptions.flatMap(sort => 
-      durationOptions.map(days => ({
-        category,
-        searchParams: {
-          q: encodeURIComponent(RSS_SOURCES[category].defaultQuery),
-          sort,
-          days,
-        }
-      }))
-    )
-  );
-}
+//   return categories.flatMap(category => 
+//     sortOptions.flatMap(sort => 
+//       durationOptions.map(days => ({
+//         category,
+//         searchParams: {
+//           q: encodeURIComponent(RSS_SOURCES[category].defaultQuery),
+//           sort,
+//           days,
+//         }
+//       }))
+//     )
+//   );
+// }
 
 // Update generateMetadata to handle Promise
 export async function generateMetadata({ 

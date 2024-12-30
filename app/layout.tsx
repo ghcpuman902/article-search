@@ -16,12 +16,15 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
-import { Header } from './ui/header';
+import { Header } from '../components/articles/header';
 import { Link } from 'lucide-react';
 
 // Metadata configurations
 export const metadata: Metadata = {
-  title: 'Article Search',
+  title: {
+    template: "%s | ArticleSearch",
+    default: "ArticleSearch",
+  },
   description: 'The web application fetches the latest articles from varies rss sources, and sort the result based on relevance compare to user query using OpenAI Embedding.',
   creator: 'Mangle Kuo',
   authors: [
