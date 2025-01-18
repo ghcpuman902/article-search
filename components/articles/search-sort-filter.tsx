@@ -93,29 +93,41 @@ export const SearchSortFilter: React.FC<{
         setIsLoading(false);
     }, [searchParams]);
 
-    const rainbowKeyframes = `
-    @keyframes rainbow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    `;
+    const grayWaveKeyframes = `
+        @keyframes grayWave {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }`;
 
-    const rainbowStyle = {
-        background: 'linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)',
-        backgroundSize: '1400% 1400%',
-        animation: 'rainbow 10s ease infinite',
-        color: 'white',
-        border: 'none'
-    };
+    const rainbowBorderKeyframes = `
+        @keyframes rainbowBorder {
+            0% { border-color: #ff0000; }
+            16.67% { border-color: #ff7f00; }
+            33.33% { border-color: #ffff00; }
+            50% { border-color: #00ff00; }
+            66.67% { border-color: #0000ff; }
+            83.33% { border-color: #4b0082; }
+            100% { border-color: #ff0000; }
+        }`;
 
     // Inject the keyframes into the document head
     if (typeof document !== 'undefined') {
         const styleSheet = document.styleSheets[0] || document.createElement('style');
-        if (!styleSheet.cssRules || !Array.from(styleSheet.cssRules).some(rule => rule instanceof CSSKeyframesRule && rule.name === 'rainbow')) {
-            styleSheet.insertRule(rainbowKeyframes, styleSheet.cssRules.length);
+        if (!styleSheet.cssRules || !Array.from(styleSheet.cssRules).some(rule => 
+            rule instanceof CSSKeyframesRule && rule.name === 'grayWave')) {
+            styleSheet.insertRule(grayWaveKeyframes, styleSheet.cssRules.length);
+        }
+        if (!styleSheet.cssRules || !Array.from(styleSheet.cssRules).some(rule => 
+            rule instanceof CSSKeyframesRule && rule.name === 'rainbowBorder')) {
+            styleSheet.insertRule(rainbowBorderKeyframes, styleSheet.cssRules.length);
         }
     }
+
+    const loadingStyle = {
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        animation: 'rainbowBorder 2s infinite linear'
+    };
 
     return (
         <div className="mt-6 w-full flex flex-wrap justify-center">
@@ -126,7 +138,7 @@ export const SearchSortFilter: React.FC<{
                 <Input 
                     id="query" 
                     type="text" 
-                    className="mr-2" 
+                    className={`mr-2 ${isLoading ? 'animate-pulse bg-gray-100 dark:bg-gray-700' : ''}`}
                     value={optimisticQuery} 
                     ref={queryInputRef}
                     onChange={(e) => setOptimisticQuery(e.target.value)}
@@ -136,14 +148,14 @@ export const SearchSortFilter: React.FC<{
                             handleSearch();
                         }
                     }}
-                    style={isLoading ? rainbowStyle : undefined}
+                    style={isLoading ? loadingStyle : undefined}
                     disabled={isLoading}
                 />
                 <Button 
-                    className={`flex flex-nowrap whitespace-nowrap relative overflow-hidden`}
+                    className={`flex flex-nowrap whitespace-nowrap relative overflow-hidden ${isLoading ? 'animate-pulse bg-gray-600 dark:bg-gray-200' : ''}`}
                     onClick={handleSearch}
                     disabled={isLoading}
-                    style={isLoading ? rainbowStyle : undefined}
+                    style={isLoading ? loadingStyle : undefined}
                     aria-label={dict.button.search}
                 >
                     {dict.button.search}

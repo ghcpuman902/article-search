@@ -319,22 +319,23 @@ export function dotProduct(a: number[] | null, b: number[] | null): number | nul
 }
 
 export function getDomainNameFromUrl(url: string): string {
-    let hostname = new URL(url).hostname;
-    let domainName = '';
+    if (!url) return 'Unknown Source';
+    
+    try {
+        const hostname = new URL(url).hostname;
+        let domainName = '';
 
-    // Remove the 'www.' or 'rss.' from the domain name
-    if (hostname.startsWith('www.') || hostname.startsWith('rss.')) {
-        hostname = hostname.split('.').slice(1).join('.');
+        // Remove the 'www.' or 'rss.' from the domain name
+        if (hostname.startsWith('www.') || hostname.startsWith('rss.')) {
+            domainName = hostname.slice(4);
+        } else {
+            domainName = hostname;
+        }
+
+        return domainName;
+    } catch {
+        return 'Unknown Source';
     }
-
-    // If domain is ".com" then remove the .com
-    if (hostname.includes('.com')) {
-        domainName = hostname.replace('.com', '');
-    } else {
-        domainName = hostname;
-    }
-
-    return domainName;
 }
 
 export function formatDate(date: Date | string): string {

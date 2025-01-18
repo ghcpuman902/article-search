@@ -1,7 +1,12 @@
 export const experimental_ppr = true
 
+// import {
+//   // unstable_cacheTag as cacheTag,
+//   unstable_cacheLife as cacheLife,
+//   // revalidateTag,
+// } from 'next/cache'
+
 import React from 'react'
-import { useTranslation } from 'react-i18next';
 
 import { ArticlesGrid } from '@/components/articles/articles-grid'
 import { SuccessfulSources } from "@/components/articles/successful-sources"
@@ -17,22 +22,12 @@ import { SearchSortFilter } from '@/components/articles/search-sort-filter';
 import { Footer } from '@/components/articles/footer'
 
 
-// Add new ServerRenderTime component
-async function ServerRenderTime() {
-  'use cache'
-  return (
-    <div className="flex flex-col w-full items-center text-center text-neutral-400">
-      <p>Server page render: {formatDate(new Date())}</p>
-    </div>
-  )
-}
-
 // Add generateStaticParams export with URL encoded queries
 // export async function generateStaticParams() {
 //   const categories = Object.keys(RSS_SOURCES);
 //   const sortOptions: SortOption[] = ['relevance', 'date'];
 //   const durationOptions: FilterDaysOption[] = ['30', '7', '4', '2'];
-  
+
 //   return categories.flatMap(category => 
 //     sortOptions.flatMap(sort => 
 //       durationOptions.map(days => ({
@@ -48,16 +43,16 @@ async function ServerRenderTime() {
 // }
 
 // Update generateMetadata to handle Promise
-export async function generateMetadata({ 
+export async function generateMetadata({
   params,
-  searchParams 
-}: { 
+  searchParams
+}: {
   params: Promise<{ category?: string }>,
   searchParams: Promise<UnifiedSearchParams>
 }) {
   const category = (await params).category || 'astronomy'
   const resolvedSearchParams = await searchParams
-  
+
   if (!resolvedSearchParams.q) {
     return {
       redirect: {
@@ -76,7 +71,6 @@ export default async function Page({
   params: Promise<{ category?: string }>,
   searchParams: Promise<UnifiedSearchParams>
 }) {
-  const { t } = useTranslation();
   const category = (await params).category || 'astronomy';
   const resolvedSearchParams = await searchParams;
   const locale = resolvedSearchParams.locale || 'en-US';
@@ -91,10 +85,10 @@ export default async function Page({
   return (
     <>
       <Suspense fallback={<LoadingSources locale={locale} />}>
-        <SuccessfulSources 
-          successfulSources={successfulSources} 
-          articles={articles} 
-          updateTime={updateTime} 
+        <SuccessfulSources
+          successfulSources={successfulSources}
+          articles={articles}
+          updateTime={updateTime}
           params={resolvedSearchParams}
           locale={locale}
         />
@@ -120,7 +114,9 @@ export default async function Page({
           <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
         </div>
       </Suspense>
-      <ServerRenderTime />
+      <div className="flex flex-col w-full items-center text-center text-neutral-400">
+        <p>Server page render: {formatDate(new Date())}</p>
+      </div>
       <Footer />
     </>
   )

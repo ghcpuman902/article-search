@@ -6,11 +6,6 @@ import { Article, SortOption, UnifiedSearchParams } from "@/lib/types"
 import { generateArticleEmbeddings, generateQueryEmbedding } from '@/app/actions/getEmbeddings'
 import { cosineSimilarity } from 'ai'
 import { Pagination } from "@/components/articles/pagination"
-import {
-  // unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife,
-  // revalidateTag,
-} from 'next/cache'
 
 // Constants at file level
 const FILTER_TEXT_MAP = {
@@ -30,27 +25,48 @@ type ArticlesGridProps = {
   locale: string
 }
 
-const ArticlesList = memo(async function ArticlesList({
+// Create a synchronous memoized component for the article list
+const MemoizedArticlesList = memo(function MemoizedArticlesList({
   articles,
   locale
 }: {
   articles: Article[]
   locale: string
 }) {
-  'use cache'
+  if (!articles || articles.length === 0) {
+    return null;
+  }
 
   return (
     <div className="items-stretch justify-center gap-6 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {articles.map((article, index) => (
-        <ArticleCard
-          locale={locale}
-          key={article?.key || `loading-${index}`}
-          article={article}
-        />
+        article ? (
+          <ArticleCard
+            locale={locale}
+            key={article.key || `article-${index}`}
+            article={article}
+          />
+        ) : null
       ))}
     </div>
   );
 });
+
+// Create an async wrapper component if needed
+async function ArticlesList({
+  articles,
+  locale
+}: {
+  articles: Article[]
+  locale: string
+}) {
+  return <MemoizedArticlesList articles={articles} locale={locale} />;
+}
+
+// Type-safe implementation outside the component
+const getFilterText = (days: number): string => {
+  return FILTER_TEXT_MAP[days as keyof typeof FILTER_TEXT_MAP] ?? 'four-days';
+};
 
 // Create a client component for the status bar
 const StatusBar = memo(function StatusBar({ 
@@ -58,15 +74,13 @@ const StatusBar = memo(function StatusBar({
   visibleArticlesCount, 
   filterByDays, 
   queryString, 
-  sortingMethod,
-  getFilterText 
+  sortingMethod
 }: {
   dict: Dictionary,
   visibleArticlesCount: number,
   filterByDays: number,
   queryString: string,
-  sortingMethod: string,
-  getFilterText: (days: number) => string
+  sortingMethod: string
 }) {
   return (
     <div className="sticky top-0 left-0 right-0 z-50 py-6 flex place-content-center">
@@ -102,10 +116,8 @@ function filterArticles(articles: Article[], filterByDays: number) {
     });
 }
 
-// Add this helper function
-const getFilterText = (days: number) => {
-  return FILTER_TEXT_MAP[days as keyof typeof FILTER_TEXT_MAP] || 'four-days';
-};
+// Memoize the Pagination component
+const PaginationMemo = memo(Pagination);
 
 export async function ArticlesGrid({ 
   articles: initialArticles, 
@@ -113,12 +125,6 @@ export async function ArticlesGrid({
   params, 
   locale='en-US' 
 }: ArticlesGridProps) {
-  'use cache'
-  cacheLife({
-    stale: 0.5 * 60 * 60, // 30 minutes
-    revalidate: 0.5 * 60 * 60, // 30 minutes
-    expire: 0.5 * 60 * 60, // 30 minutes
-  })
   const dict = getDictionary(locale);
   
   // Parse params
@@ -173,14 +179,17 @@ export async function ArticlesGrid({
         filterByDays={filterByDays}
         queryString={queryString}
         sortingMethod={sortingMethod}
-        getFilterText={getFilterText}
       />
       
       <Suspense fallback={
-        <ArticlesList
-          articles={Array(ARTICLES_PER_PAGE).fill(null).map((_, i) => 
-            paginatedArticles[i] || filteredArticles[i]
-          )}
+        <MemoizedArticlesList
+          articles={Array(ARTICLES_PER_PAGE).fill({ 
+            key: 'loading',
+            title: 'Loading...',
+            link: '#',
+            pubDate: new Date(),
+            // Add other required Article properties with placeholder values
+          })}
           locale={locale}
         />
       }>
@@ -191,7 +200,7 @@ export async function ArticlesGrid({
       </Suspense>
 
       {visibleArticlesCount > ARTICLES_PER_PAGE && (
-        <Pagination
+        <PaginationMemo
           totalPages={totalPages}
           currentPage={currentPage}
           basePath=""

@@ -1,3 +1,5 @@
+import { NextConfig } from "next";
+
 // Define allowed RSS feed domains for images
 const RSS_DOMAINS = [
   'scitechdaily.com',
@@ -23,8 +25,7 @@ const RSS_DOMAINS = [
 
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   eslint: {
     dirs: ['app', 'components', 'lib']
   },
@@ -48,7 +49,7 @@ const nextConfig = {
       },
       // Add patterns for RSS feed image domains
       ...RSS_DOMAINS.map(domain => ({
-        protocol: 'https',
+        protocol: 'https' as const,
         hostname: `*.${domain}`, // Include subdomains
         port: '',
         pathname: '/**',
