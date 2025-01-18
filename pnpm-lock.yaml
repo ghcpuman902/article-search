@@ -71,6 +71,9 @@ importers:
       htmlparser2:
         specifier: ^9.1.0
         version: 9.1.0
+      i18next:
+        specifier: ^24.2.1
+        version: 24.2.1(typescript@5.7.2)
       lucide-react:
         specifier: ^0.453.0
         version: 0.453.0(react@19.0.0-rc.1)
@@ -86,6 +89,9 @@ importers:
       react-dom:
         specifier: 19.0.0-rc.1
         version: 19.0.0-rc.1(react@19.0.0-rc.1)
+      react-i18next:
+        specifier: ^15.4.0
+        version: 15.4.0(i18next@24.2.1(typescript@5.7.2))(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.5.5
@@ -216,6 +222,10 @@ packages:
     resolution: {integrity: sha512-DWMCZH9WA4Maitz2q21SRKHo9QXZxkDsbNZoVD62gusNtNBBqDg9i7uOhASfTfIGNzW+O+r7+jAlM8dwphcJKQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  '@babel/runtime@7.26.0':
+    resolution: {integrity: sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/types@7.26.0':
     resolution: {integrity: sha512-Z/yiTPj+lDVnF7lWeKCIJzaIkI0vYO87dMpZ4bg4TDrFe4XXLFWL1TbXU27gBP3QccxV9mZICCrnjnYlJjXHOA==}
@@ -1746,12 +1756,23 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
+  html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+
   htmlparser2@9.1.0:
     resolution: {integrity: sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==}
 
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+
+  i18next@24.2.1:
+    resolution: {integrity: sha512-Q2wC1TjWcSikn1VAJg13UGIjc+okpFxQTxjVAymOnSA3RpttBQNMPf2ovcgoFVsV4QNxTfNZMAxorXZXsk4fBA==}
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -2241,6 +2262,19 @@ packages:
     peerDependencies:
       react: 19.0.0-rc.1
 
+  react-i18next@15.4.0:
+    resolution: {integrity: sha512-Py6UkX3zV08RTvL6ZANRoBh9sL/ne6rQq79XlkHEdd82cZr2H9usbWpUNVadJntIZP2pu3M2rL1CN+5rQYfYFw==}
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -2288,6 +2322,9 @@ packages:
   reflect.getprototypeof@1.0.7:
     resolution: {integrity: sha512-bMvFGIUKlc/eSfXNX+aZ+EL95/EgZzuwA0OBPTbZZDEJw/0AkentjMuM1oiRfwHrshqk4RzdgiTg5CcDalXN5g==}
     engines: {node: '>= 0.4'}
+
+  regenerator-runtime@0.14.1:
+    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
 
   regexp.prototype.flags@1.5.3:
     resolution: {integrity: sha512-vqlC04+RQoFalODCbCumG2xIOvapzVMHwsyIGM/SIE8fRhFFsXeH8/QQ+s0T0kDAhKc4k30s73/0ydkHQz6HlQ==}
@@ -2601,6 +2638,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
+
   vue@3.5.12:
     resolution: {integrity: sha512-CLVZtXtn2ItBIi/zHZ0Sg1Xkb7+PU32bJJ8Bmy7ts3jxXTcbfsEfBivFYYWz1Hur+lalqGAh65Coin0r+HRUfg==}
     peerDependencies:
@@ -2743,6 +2784,10 @@ snapshots:
   '@babel/parser@7.26.2':
     dependencies:
       '@babel/types': 7.26.0
+
+  '@babel/runtime@7.26.0':
+    dependencies:
+      regenerator-runtime: 0.14.1
 
   '@babel/types@7.26.0':
     dependencies:
@@ -4370,6 +4415,10 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  html-parse-stringify@3.0.1:
+    dependencies:
+      void-elements: 3.1.0
+
   htmlparser2@9.1.0:
     dependencies:
       domelementtype: 2.3.0
@@ -4378,6 +4427,12 @@ snapshots:
       entities: 4.5.0
 
   human-signals@2.1.0: {}
+
+  i18next@24.2.1(typescript@5.7.2):
+    dependencies:
+      '@babel/runtime': 7.26.0
+    optionalDependencies:
+      typescript: 5.7.2
 
   ignore@5.3.2: {}
 
@@ -4833,6 +4888,15 @@ snapshots:
       react: 19.0.0-rc.1
       scheduler: 0.25.0-rc.1
 
+  react-i18next@15.4.0(i18next@24.2.1(typescript@5.7.2))(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1):
+    dependencies:
+      '@babel/runtime': 7.26.0
+      html-parse-stringify: 3.0.1
+      i18next: 24.2.1(typescript@5.7.2)
+      react: 19.0.0-rc.1
+    optionalDependencies:
+      react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
+
   react-is@16.13.1: {}
 
   react-remove-scroll-bar@2.3.6(@types/react@18.3.12)(react@19.0.0-rc.1):
@@ -4882,6 +4946,8 @@ snapshots:
       get-intrinsic: 1.2.4
       gopd: 1.1.0
       which-builtin-type: 1.2.0
+
+  regenerator-runtime@0.14.1: {}
 
   regexp.prototype.flags@1.5.3:
     dependencies:
@@ -5276,6 +5342,8 @@ snapshots:
       react: 19.0.0-rc.1
 
   util-deprecate@1.0.2: {}
+
+  void-elements@3.1.0: {}
 
   vue@3.5.12(typescript@5.7.2):
     dependencies:

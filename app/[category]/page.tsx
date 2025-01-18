@@ -1,6 +1,7 @@
 export const experimental_ppr = true
 
 import React from 'react'
+import { useTranslation } from 'react-i18next';
 
 import { ArticlesGrid } from '@/components/articles/articles-grid'
 import { SuccessfulSources } from "@/components/articles/successful-sources"
@@ -75,6 +76,7 @@ export default async function Page({
   params: Promise<{ category?: string }>,
   searchParams: Promise<UnifiedSearchParams>
 }) {
+  const { t } = useTranslation();
   const category = (await params).category || 'astronomy';
   const resolvedSearchParams = await searchParams;
   const locale = resolvedSearchParams.locale || 'en-US';

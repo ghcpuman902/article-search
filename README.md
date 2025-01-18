@@ -28,4 +28,6 @@ Sort by distance is important as future things like newsletter depends on it
 - if any default query yields <40%, dont bother show to user or use in future calculation -> maybe will contradict with "embed only necessary"
 
 The percentage is different for each of the keywords and pages and sources.
-Maybe use 4o-mini to tag?
+Maybe use 4o-mini to tag?v -> tested but too slow
+
+
