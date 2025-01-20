@@ -1,9 +1,11 @@
+export const experimental_ppr = true
+
 import React, { Suspense } from 'react'
 import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';
 import { UnifiedSearchParams } from '@/lib/types';
 import { RSS_SOURCES } from '@/lib/rss-sources';
-import { LoadingSources, LoadingCardGrid } from '@/components/articles/loading-templates';
+import { LoadingSources, LoadingArticleTable } from '@/components/articles/loading-templates';
 import ArticleTable from '@/components/articles/article-table';
 import { SuccessfulSources } from '@/components/articles/successful-sources';
 import { Footer } from '@/components/articles/footer';
@@ -28,7 +30,7 @@ export default async function ListPage({
 
     return (
         <>
-            <Suspense fallback={<LoadingSources />}>
+            <Suspense fallback={<><LoadingSources /><LoadingArticleTable /></>}>
                 <SuccessfulSources
                     successfulSources={successfulSources}
                     articles={articles}
@@ -36,15 +38,18 @@ export default async function ListPage({
                     params={resolvedSearchParams}
                     locale={locale}
                 />
-            </Suspense>
-            <Suspense fallback={<LoadingCardGrid />}>
                 <ArticleTable articles={articles} locale={locale} />
             </Suspense>
-
-            <div className="flex flex-col w-full items-center text-center text-neutral-400">
-                <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
-            </div>
             <Footer />  
         </>
     )
 }
+
+
+// export default async function ListPage() {
+//     return (
+//         <>
+//             <div className="text-center text-foreground">ListPage</div>
+//         </>
+//     )
+// }

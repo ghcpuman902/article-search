@@ -146,3 +146,47 @@ export const LoadingSearchSortFilter: React.FC<{ locale?: string }> = ({ locale 
         </div>
     );
 }
+
+export const LoadingArticleTable: React.FC = () => {
+
+    return (
+        <div>
+            <div className="flex items-center py-4 gap-2">
+                <Skeleton className="h-10 w-[300px]" /> {/* Search input */}
+                <Skeleton className="h-10 w-[100px]" /> {/* Columns button */}
+            </div>
+            <div className="rounded-md border">
+                <table className="w-full">
+                    <thead>
+                        <tr>
+                            <th className="px-2 py-1 text-left font-medium text-sm">
+                                <Skeleton className="h-8 w-[100px]" />
+                            </th>
+                            <th className="px-2 py-1 text-left font-medium text-sm">
+                                <Skeleton className="h-8 w-[80px]" />
+                            </th>
+                            <th className="px-2 py-1 text-left font-medium text-sm">
+                                <Skeleton className="h-8 w-[80px]" />
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Array(10).fill(null).map((_, index) => (
+                            <tr key={index} className="border-t">
+                                <td className="px-2 py-1 text-sm">
+                                    <Skeleton className="h-6 w-[400px]" />
+                                </td>
+                                <td className="px-2 py-1 text-sm">
+                                    <Skeleton className="h-6 w-[100px]" />
+                                </td>
+                                <td className="px-2 py-1 text-sm">
+                                    <Skeleton className="h-6 w-[150px]" />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}

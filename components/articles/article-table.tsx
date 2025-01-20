@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, ExternalLink } from "lucide-react";
 import { Article } from '@/lib/types';
-import { cn, Dictionary, getDictionary } from "@/lib/utils";
+import { cn, Dictionary, timeAgo, getDictionary } from "@/lib/utils";
 
 
 const MAX_AGE_IN_MILLISECONDS = 32 * 24 * 60 * 60 * 1000; // 32 days
@@ -86,7 +86,7 @@ const columns = (dict: Dictionary): ColumnDef<Article>[] => [
           hour: 'numeric',
           minute: 'numeric',
           weekday: 'narrow'
-        })}
+        })} ({timeAgo(row.getValue("pubDate"))})
       </div>
     ),
   },
@@ -96,7 +96,7 @@ function ArticleTable({ articles, locale='en-US' }: { articles: Article[], local
   const dict = getDictionary(locale);
 
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "source", desc: false }
+    { id: "pubDate", desc: true }
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -109,6 +109,11 @@ function ArticleTable({ articles, locale='en-US' }: { articles: Article[], local
     getCoreRowModel: getCoreRowModel(),
     ...(articles.length >= 200 && {
       getPaginationRowModel: getPaginationRowModel(),
+      initialState: {
+        pagination: {
+          pageSize: 50,
+        },
+      },
     }),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -186,8 +191,8 @@ function ArticleTable({ articles, locale='en-US' }: { articles: Article[], local
                     key={row.id} 
                     className={cn(
                       "border-t hover:bg-muted/50",
-                      age - MAX_AGE_IN_MILLISECONDS > 0 && "text-red-400 hover:bg-red-100/50",
-                      age - HIDE_TIME_IN_MILLISECONDS > 0 && "bg-yellow-50 hover:bg-yellow-100/50"
+                      age - MAX_AGE_IN_MILLISECONDS > 0 && "text-red-400 dark:text-red-500 hover:bg-red-100/50 dark:hover:bg-red-900/50",
+                      age - HIDE_TIME_IN_MILLISECONDS > 0 && "bg-yellow-50 dark:bg-yellow-900/50 hover:bg-yellow-100/50 dark:hover:bg-yellow-800/50"
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (

@@ -1,8 +1,20 @@
+export const experimental_ppr = true
+import {
+  // unstable_cacheTag as cacheTag,
+  unstable_cacheLife as cacheLife,
+  // revalidateTag,
+} from 'next/cache'
+
+
 import Link from 'next/link'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 import { Footer } from '@/components/articles/footer'
 
-export default function HomePage() {
+
+export default async function HomePage() {
+  'use cache'
+  cacheLife('max')
+
   // Group the categories by their group property
   const groupedCategories = Object.entries(RSS_SOURCES).reduce((acc, [key, value]) => {
     const group = value.group
