@@ -64,7 +64,7 @@ async function ArticlesList({
 }
 
 // Type-safe implementation outside the component
-const getFilterText = (days: number): string => {
+const getFilterByKey = (days: number): string => {
   return FILTER_TEXT_MAP[days as keyof typeof FILTER_TEXT_MAP] ?? 'four-days';
 };
 
@@ -88,7 +88,7 @@ const StatusBar = memo(function StatusBar({
         {dict.title.articles_in_past_days
           .replace("[NUMBER]", visibleArticlesCount.toString())
           .replace("[DAYS]", filterByDays.toString())
-        } | &quot;{queryString}&quot; | {dict.label.sort_by} {sortingMethod === "relevance" ? dict.label.relevance : dict.label.date} | {dict.label.filter_by} {getFilterText(filterByDays)}
+        } | &quot;{queryString}&quot; | {dict.label.sort_by} {sortingMethod === "relevance" ? dict.label.relevance : dict.label.date} | {dict.label.filter_by} {dict.label[getFilterByKey(filterByDays)]}
       </span>
     </div>
   );
