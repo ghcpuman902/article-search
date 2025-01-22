@@ -18,6 +18,7 @@ import {
     DURATION_MAPPING,
     DurationKey 
 } from '@/lib/types';
+import { setCategoryState } from '@/lib/local-storage';
 
 
 export const SearchSortFilter: React.FC<{ 
@@ -48,13 +49,22 @@ export const SearchSortFilter: React.FC<{
         setOptimisticDays(currentDays);
     }, [currentQuery, currentSort, currentDays]);
 
-    // Update URL helper function
+    // Update URL helper function with proper history management
     const updateURL = (params: { [key: string]: string }) => {
         const newSearchParams = new URLSearchParams(searchParams.toString());
         Object.entries(params).forEach(([key, value]) => {
             newSearchParams.set(key, value);
         });
-        router.push(`${pathname}?${newSearchParams.toString()}`);
+        
+        // Get category from pathname (e.g., /tech?q=ai -> tech)
+        const category = pathname.split('/')[1];
+        
+        // Store state in localStorage
+        if (category) {
+            setCategoryState(category, Object.fromEntries(newSearchParams.entries()));
+        }
+        
+        router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: true });
     };
 
     const updateSortingMethod = (value: string) => {

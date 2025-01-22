@@ -24,6 +24,7 @@ export default function Error({ error }: ErrorProps) {
           e.preventDefault()
           window.location.reload()
         }}
+        className="text-blue-500 hover:text-blue-700 underline"
       >
         Try again
       </Link>

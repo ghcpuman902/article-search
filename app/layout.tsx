@@ -50,41 +50,34 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const shouldInjectToolbar = process.env.NODE_ENV === 'development';
-  const shouldInjectToolbar = false;
+  const shouldInjectToolbar = process.env.NODE_ENV === 'development';
 
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
-        {/* <Suspense fallback={<>THEME LOADING...</>}> */}
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="p-4 md:p-8 overflow-clip">
-              <Suspense fallback={
-                <header role="banner">
-                  <nav className="flex justify-between items-center">
-                    <Link href="/">
-                      <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
-                    </Link>
-                  </nav>
-                </header>
-              }>
-                <Header />
-              </Suspense>
-              
-              <main role="main">
-                <Suspense fallback={<div className="text-center text-foreground">Loading Root Layout Children...</div>}>
-                  {children}
-                </Suspense>
-              </main>
-            </div>
-            
-            <Suspense fallback={<div>Loading...</div>}>
-              <Toaster />
-              <Analytics />
-              {shouldInjectToolbar && <VercelToolbar />}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="p-4 md:p-8">
+            <Suspense fallback={<header role="banner">
+              <nav className="flex justify-between items-center">
+                <Link href="/">
+                  <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
+                </Link>
+              </nav>
+            </header>}>
+              <Header />
             </Suspense>
-          </ThemeProvider>
-        {/* </Suspense> */}
+
+            <Suspense fallback={<div className="text-center text-foreground">Loading Root Layout Children...</div>}>
+              {children}
+            </Suspense>
+          </div>
+
+          <Suspense>
+            <Toaster />
+            <Analytics />
+            {shouldInjectToolbar && <VercelToolbar />}
+          </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );

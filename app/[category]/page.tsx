@@ -75,7 +75,6 @@ export default async function Page({
   const resolvedSearchParams = await searchParams;
   const locale = resolvedSearchParams.locale || 'en-US';
 
-  // Handle redirect logic
   if (!resolvedSearchParams.q) {
     redirect(`/${category}?q=` + encodeURIComponent(RSS_SOURCES[category]?.defaultQuery || RSS_SOURCES['astronomy'].defaultQuery));
   }
@@ -83,7 +82,7 @@ export default async function Page({
   const { articles, successfulSources, updateTime } = await fetchAllArticles(category);
 
   return (
-    <>
+    <main role="main">
       <Suspense fallback={<LoadingSources locale={locale} />}>
         <SuccessfulSources
           successfulSources={successfulSources}
@@ -107,17 +106,13 @@ export default async function Page({
         />
       </Suspense>
 
-      <Suspense fallback={<div className="flex flex-col w-full items-center text-center text-neutral-400">
-        <p>Search Params: <code className="font-mono bg-neutral-100 dark:bg-neutral-800 animate-pulse">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></p>
-      </div>}>
-        <div className="flex flex-col w-full items-center text-center text-neutral-400">
+      <footer className="flex flex-col w-full items-center text-center text-neutral-400">
+        <Suspense fallback={<p>Search Params: <code className="font-mono bg-neutral-100 dark:bg-neutral-800 animate-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</code></p>}>
           <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
-        </div>
-      </Suspense>
-      <div className="flex flex-col w-full items-center text-center text-neutral-400">
+        </Suspense>
         <p>Server page render: {formatDate(new Date())}</p>
-      </div>
-      <Footer />
+        <Footer />
+      </footer>
 
       <div className="hidden">
           {/* Sample colors to help tailwind treeshaking correctly*/}
@@ -137,6 +132,6 @@ export default async function Page({
           <div className="border-violet-300 dark:border-violet-500" />
           <div className="border-neutral-300 dark:border-neutral-500" />
         </div>
-    </>
+    </main>
   )
 }

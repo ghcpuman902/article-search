@@ -21,7 +21,7 @@ const countryCodeToLocaleMap: Record<string, string> = {
     'TW': 'zh-CN',
 };
 
-const SUPPORTED_LOCALES = new Set(['ja-JP']);
+const SUPPORTED_LOCALES = new Set(['ja-JP', 'zh-CN']);
 
 export default function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
