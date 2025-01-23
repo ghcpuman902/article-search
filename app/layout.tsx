@@ -18,6 +18,7 @@ import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '../components/articles/header';
 import { Link } from 'lucide-react';
+// import { ReactScan } from '@/components/react-scan';
 
 // Metadata configurations
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | ArticleSearch",
     default: "ArticleSearch",
   },
-  description: 'The web application fetches the latest articles from varies rss sources, and sort the result based on relevance compare to user query using OpenAI Embedding.',
+  description: 'ArticleSearch aggregates and ranks articles from diverse RSS sources, using OpenAI embeddings to intelligently sort results by relevance to your search query.',
   creator: 'Mangle Kuo',
   authors: [
     {
@@ -56,11 +57,11 @@ export default async function RootLayout({
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="p-4 md:p-8">
+          <div className="px-4 py-2 md:px-8 md:py-4">
             <Suspense fallback={<header role="banner">
-              <nav className="flex justify-between items-center">
+              <nav className="flex justify-between items-center mb-2 md:mb-4">
                 <Link href="/">
-                  <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">ArticleSearch</h1>
+                  <h1 className="text-5xl font-extrabold tracking-tight">ArticleSearch</h1>
                 </Link>
               </nav>
             </header>}>
@@ -76,6 +77,7 @@ export default async function RootLayout({
             <Toaster />
             <Analytics />
             {shouldInjectToolbar && <VercelToolbar />}
+            {/* <ReactScan /> */}
           </Suspense>
         </ThemeProvider>
       </body>

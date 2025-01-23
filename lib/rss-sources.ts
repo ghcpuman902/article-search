@@ -1,7 +1,29 @@
+import { Atom, Building2, LandPlot, Newspaper } from 'lucide-react'
+
+export const GROUP_CONFIG = {
+  'science': {
+    icon: Atom,
+    displayName: 'Science & Space'
+  },
+  'business': {
+    icon: Building2,
+    displayName: 'Business & Finance'
+  },
+  'politics': {
+    icon: LandPlot,
+    displayName: 'Politics'
+  },
+  'news': {
+    icon: Newspaper,
+    displayName: 'News'
+  }
+} as const
+
 export type RSSSourceCategory = {
   feeds: string[]
   defaultQuery: string
-  group: 'news' | 'politics' | 'science' | 'business'
+  group: keyof typeof GROUP_CONFIG
+  displayName: string
 }
 
 const uk_news_feeds = [
@@ -302,13 +324,14 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://skyandtelescope.org/astronomy-news/feed",
       "https://spacenews.com/feed/",
       "http://rss.sciam.com/ScientificAmerican-Global",
-      "https://ras.ac.uk/rss.xml",
+      // "https://ras.ac.uk/rss.xml",
       "https://www.sci.news/astronomy/feed",
       "https://www.newscientist.com/subject/space/feed/",
       "https://theconversation.com/us/technology/articles.atom"
     ],
     defaultQuery: 'attention grabbing astronomy news',
-    group: 'science'
+    group: 'science',
+    displayName: 'Astronomy'
   },
   'astronomy-jp': {
     feeds: [
@@ -320,7 +343,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.jaxa.jp/rss/press_j.rdf"
     ],
     defaultQuery: '注目の天文ニュース',
-    group: 'science'
+    group: 'science',
+    displayName: 'Japanese Astronomy'
   },
   'finance': {
     feeds: [
@@ -335,7 +359,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/companies/financials?format=rss"
     ],
     defaultQuery: 'significant financial and economic news',
-    group: 'business'
+    group: 'business',
+    displayName: 'Finance & Markets'
   },
   'uk-politics': {
     feeds: [
@@ -344,7 +369,8 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/world/uk?format=rss"
     ],
     defaultQuery: 'important UK political news and developments',
-    group: 'politics'
+    group: 'politics',
+    displayName: 'UK Politics'
   },
   'us-politics': {
     feeds: [
@@ -354,12 +380,14 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/world/us?format=rss"
     ],
     defaultQuery: 'important US political news and developments',
-    group: 'politics'
+    group: 'politics',
+    displayName: 'US Politics'
   },
   'uk-news': {
     feeds: uk_news_feeds.map(feed => feed.url),
     defaultQuery: 'important UK news',
-    group: 'news'
+    group: 'news',
+    displayName: 'UK News'
   },
   'international-news': {
     feeds: [
@@ -371,6 +399,7 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.ft.com/world/mideast?format=rss"
     ],
     defaultQuery: 'important international news and developments',
-    group: 'news'
+    group: 'news',
+    displayName: 'International News'
   }
 } 

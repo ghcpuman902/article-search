@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useSelectedLayoutSegment } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { RSS_SOURCES } from '@/lib/rss-sources'
 
 const TRANSITION_DURATION = 300
 
@@ -26,11 +27,15 @@ export function Header() {
         }
     }, [segment])
 
+    const getDisplayName = (slug: string) => {
+        return RSS_SOURCES[slug]?.displayName || slug.charAt(0).toUpperCase() + slug.slice(1)
+    }
+
     return (
         <header role="banner">
-            <nav className="flex justify-between items-center" role="navigation">
+            <nav className="flex justify-between items-center mb-2 md:mb-4" role="navigation">
                 <Link href="/">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+                    <h1 className="text-5xl font-extrabold tracking-tight">
                         <div className="relative flex flex-wrap items-center whitespace-nowrap">
                             <div className="inline-block">A</div>
                             <div className={cn(
@@ -48,7 +53,7 @@ export function Header() {
                             )}>
                                 {displayedSegment && (
                                     <span className="inline-block">
-                                        {`/ ${displayedSegment.charAt(0).toUpperCase() + displayedSegment.slice(1)}`}
+                                        {`/ ${getDisplayName(displayedSegment)}`}
                                     </span>
                                 )}
                             </div>

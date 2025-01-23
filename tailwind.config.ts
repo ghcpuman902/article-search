@@ -60,7 +60,18 @@ const config: Config = {
 				sans: ['var(--font-geist-sans)'],
 				mono: ['var(--font-geist-mono)'],
 			},
-		}
+		},
+		keyframes: {
+		  ping: {
+			'75%, 100%': {
+			  transform: 'scale(3)',
+			  opacity: '0',
+			},
+		  },
+		},
+		animation: {
+		  ping: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+		},
 	},
 	plugins: [require("tailwindcss-animate")],
 };

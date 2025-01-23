@@ -26,9 +26,9 @@ export function ThemeToggle() {
   const currentIndex = themes.findIndex(t => t.name === currentTheme)
 
   return (
-    <div className="relative flex h-8 w-40 items-center justify-center rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+    <div className="relative flex h-8 w-40 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 p-1">
       <div
-        className="absolute left-1 h-6 w-[calc(33.33%-2px)] rounded-full bg-white shadow-sm transition-transform dark:bg-zinc-700"
+        className="absolute left-1 h-6 w-[calc(33.33%-2px)] rounded-full border border-zinc-300 dark:border-zinc-700 transition-transform"
         style={{ transform: `translateX(${currentIndex * 100}%)` }}
       />
       {themes.map(({ name, icon: Icon }) => (
@@ -37,7 +37,7 @@ export function ThemeToggle() {
           className={`relative z-10 flex h-6 w-1/3 items-center justify-center rounded-full text-sm transition-colors ${
             currentTheme === name
               ? 'text-zinc-900 dark:text-zinc-100'
-              : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+              : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300'
           }`}
           onClick={() => setTheme(name)}
           aria-label={`Switch to ${name} theme`}

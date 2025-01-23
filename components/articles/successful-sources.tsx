@@ -1,25 +1,24 @@
 import React from 'react';
 
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dictionary, getDictionary, getDomainNameFromUrl, linkToKey } from "@/lib/utils";
 import { LastFetched } from "./last-fetched";
 import { FilterDaysOption, SuccessfulSource, UnifiedSearchParams, Article } from "@/lib/types";
 
 interface SuccessfulSourcesProps {
-  successfulSources: SuccessfulSource[];
-  articles: Article[];
-  updateTime: Date;
-  params: UnifiedSearchParams;
-  locale: string;
+    successfulSources: SuccessfulSource[];
+    articles: Article[];
+    updateTime: Date;
+    params: UnifiedSearchParams;
+    locale: string;
 }
 
-export function SuccessfulSources({ 
-  successfulSources, 
-  articles: initialArticles,
-  updateTime,
-  params,
-  locale='en-US'
+export function SuccessfulSources({
+    successfulSources,
+    articles: initialArticles,
+    updateTime,
+    params,
+    locale = 'en-US'
 }: SuccessfulSourcesProps) {
     const dict = getDictionary(locale);
     const filterByDays = getFilterDays(params.days);
@@ -28,13 +27,23 @@ export function SuccessfulSources({
     const visibleCountBySource = calculateVisibleCounts(visibleArticles);
 
     return (
-        <div className="my-6">
-            <Label className="mr-1">{dict.label.article_sources}</Label>
-            {renderSourceBadges(successfulSources, visibleCountBySource, dict)}
-            <LastFetched locale={locale} updateTime={updateTime} />
-        </div>
+        <section
+            className="my-6 flex flex-wrap gap-2 mt-2"
+            aria-labelledby="sources-heading"
+        >
+            <div className="flex flex-wrap items-center gap-1">
+                <span
+                    id="sources-heading"
+                    className="mr-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    {dict.label.article_sources}
+                </span>
+                {renderSourceBadges(successfulSources, visibleCountBySource, dict)}
+                <LastFetched locale={locale} updateTime={updateTime} />
+            </div>
+        </section>
     );
-} 
+}
 
 // Helper functions
 function getFilterDays(days: FilterDaysOption | undefined): number {
@@ -76,17 +85,28 @@ function renderSourceBadges(
     visibleCounts: Record<string, number>,
     dict: Dictionary
 ) {
-    if (!sources) return dict.label.loading;
+    if (!sources) return <span aria-label={dict.label.loading}>{dict.label.loading}</span>;
 
     return sources.map((source, index) => {
         const { url, total, maxAge } = source;
         const domainName = getDomainNameFromUrl(url);
         const visibleCount = visibleCounts[domainName] || 0;
+        const badgeLabel = `${domainName}: ${visibleCount} of ${total - maxAge} articles`;
 
         return (
-            <Badge key={index} variant="outline" className="mx-1">
-                <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                    {domainName} ({visibleCount}/{total-maxAge})
+            <Badge
+                key={index}
+                variant="outline"
+                className="hover:bg-accent px-1.5"
+            >
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    aria-label={badgeLabel}
+                >
+                    {domainName} ({visibleCount}/{total - maxAge})
                 </a>
             </Badge>
         );

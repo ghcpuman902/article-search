@@ -13,7 +13,7 @@ interface PaginationProps {
 }
 
 export async function Pagination({ totalPages, currentPage, basePath, searchParams }: PaginationProps) {
-  const maxVisiblePages = 5
+  const maxVisiblePages = 3
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
 
   let startPage = Math.max(currentPage - Math.floor(maxVisiblePages / 2), 1)
@@ -25,21 +25,16 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
 
   const visiblePages = pageNumbers.slice(startPage - 1, endPage)
 
-
-  // Remove the scrollToTop from createPageUrl since it's a server component
   const createPageUrl = (pageNum: number) => {
-    // Prevent invalid page numbers
     if (pageNum < 1 || pageNum > totalPages) return '';
     
     const params = new URLSearchParams();
     
-    // Maintain existing search params
     if (searchParams.q) params.set('q', searchParams.q);
     if (searchParams.sort) params.set('sort', searchParams.sort);
     if (searchParams.days) params.set('days', searchParams.days);
     if (searchParams.locale) params.set('locale', searchParams.locale);
     
-    // Only add page param if it's not page 1
     if (pageNum > 1) {
       params.set('page', pageNum.toString());
     }
@@ -75,7 +70,7 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
   }
 
   return (
-    <div className="flex justify-center items-center space-x-2 my-4" aria-label="Pagination">
+    <nav className="flex justify-center items-center space-x-2 my-8" aria-label="Pagination">
       <Suspense 
         key="prev"
         fallback={
@@ -147,6 +142,6 @@ export async function Pagination({ totalPages, currentPage, basePath, searchPara
           <span className="sr-only">Next page</span>
         </PaginationButton>
       </Suspense>
-    </div>
+    </nav>
   )
 } 
