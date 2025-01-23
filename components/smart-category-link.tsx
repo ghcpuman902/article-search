@@ -25,7 +25,6 @@ const SmartCategoryLink = React.forwardRef<
   SmartCategoryLinkProps
 >(({ category, defaultQuery, feedCount, displayName, className, ...props }, ref) => {
   const storedState = getCategoryState(category)
-  const [query, setQuery] = useState(storedState?.q || defaultQuery)
   const [localQuery, setLocalQuery] = useState(storedState?.q || defaultQuery)
   const [href, setHref] = useState('')
 
@@ -47,8 +46,6 @@ const SmartCategoryLink = React.forwardRef<
   }, [category, localQuery, storedState])
 
   const handleQueryChange = (newQuery: string) => {
-    setQuery(newQuery)
-    // Preserve existing state while only updating 'q'
     const currentState = getCategoryState(category)
     const params: UnifiedSearchParams = {
       sort: (currentState?.sort || 'relevance') as SortOption,
