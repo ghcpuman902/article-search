@@ -16,13 +16,13 @@ const HalftoneImage = ({ src, alt, width, height }: HalftoneImageProps) => {
     const dynamicDotSize = dotSize / Math.cos((rotation * Math.PI) / 180)
 
     return (
-        <div className="relative w-full aspect-video mix-blend-darken">
+        <div className="relative w-full aspect-video mix-blend-darken dark:mix-blend-lighten">
             {/* Base Image */}
             <div
-                className="absolute inset-0 p-2 bg-background"
+                className="absolute inset-0 p-2 bg-background [--brightnessy:1.5] dark:[--brightnessy:2] [--contrast:10] dark:[--contrast:1.8] [--blur:0.3px] [--blur2:0.1px] [--saturation:1.2] [--sepia:0.4]"
                 style={{
                     colorInterpolation: "sRGB",
-                    filter: "brightness(1.5) blur(0.3px) contrast(10) blur(0.1px) saturate(1.2) sepia(0.4)",
+                    filter: "brightness(var(--brightnessy)) blur(var(--blur)) contrast(var(--contrast)) blur(var(--blur2)) saturate(var(--saturation)) sepia(var(--sepia))",
                 }}
             >
                 <Image
