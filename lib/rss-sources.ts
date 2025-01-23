@@ -1,9 +1,13 @@
-import { Atom, Building2, LandPlot, Newspaper } from 'lucide-react'
+import { Atom, Building2, LandPlot, Newspaper, Laptop } from 'lucide-react'
 
 export const GROUP_CONFIG = {
   'science': {
     icon: Atom,
     displayName: 'Science & Space'
+  },
+  'tech': {
+    icon: Laptop,
+    displayName: 'Technology'
   },
   'business': {
     icon: Building2,
@@ -16,7 +20,7 @@ export const GROUP_CONFIG = {
   'news': {
     icon: Newspaper,
     displayName: 'News'
-  }
+  },
 } as const
 
 export type RSSSourceCategory = {
@@ -345,6 +349,38 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
     defaultQuery: '注目の天文ニュース',
     group: 'science',
     displayName: 'Japanese Astronomy'
+  },
+  'ai': {
+    feeds: [
+      "https://techcrunch.com/feed/",
+      "https://www.theverge.com/rss/frontpage",
+      "https://www.wired.com/feed/rss",
+      "https://mashable.com/feeds/rss/all",
+      "https://gizmodo.com/rss",
+      "https://www.cnet.com/rss/news/",
+      "https://www.engadget.com/rss.xml",
+      "https://feeds.feedburner.com/venturebeat/SZYF",
+      "https://www.vox.com/rss/technology/index.xml"
+    ],
+    defaultQuery: 'ai news and developments',
+    group: 'tech',
+    displayName: 'AI'
+  },
+  'ces': {
+    feeds: [
+      "https://techcrunch.com/feed/",
+      "https://www.theverge.com/rss/frontpage",
+      "https://www.wired.com/feed/rss",
+      "https://mashable.com/feeds/rss/all",
+      "https://gizmodo.com/rss",
+      "https://www.cnet.com/rss/news/",
+      "https://www.engadget.com/rss.xml",
+      "https://feeds.feedburner.com/venturebeat/SZYF",
+      "https://www.vox.com/rss/technology/index.xml"
+    ],
+    defaultQuery: '2025 CES new products',
+    group: 'tech',
+    displayName: 'CES'
   },
   'finance': {
     feeds: [

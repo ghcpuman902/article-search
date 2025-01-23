@@ -16,7 +16,7 @@ const FILTER_TEXT_MAP = {
 } as const;
 
 // Constants for pagination - increased due to virtualization optimization
-const ARTICLES_PER_PAGE = 200; // Increased from 50 to 200 since we have virtualization now
+const ARTICLES_PER_PAGE = 100; // Increased from 50 to 100 since we have virtualization now
 
 type ArticlesGridProps = {
   articles: Article[]

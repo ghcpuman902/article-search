@@ -1,9 +1,30 @@
+export type ImageData = {
+  src: string;  // Must be a non-empty string
+  alt?: string;
+  width?: number;
+  height?: number;
+}
+
+// Helper type guard
+export function isValidImageData(image: ImageData | null): image is ImageData {
+  try {
+    return Boolean(
+      image !== null && 
+      typeof image.src === 'string' && 
+      image.src.trim() !== '' &&
+      (image.src.startsWith('http') || image.src.startsWith('/'))
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface Article {
     title: string;
     link: string;
     pubDate: number;
     description: string;
-    image: string;
+    image: ImageData | null;
     source: string;
     hidden: boolean;
     // Add these optional properties for when articles are processed with embeddings

@@ -1,5 +1,3 @@
-'use client'
-
 import React, { memo, useMemo } from 'react'
 import Link from 'next/link';
 import {
@@ -12,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ArticleMedia } from './article-media'
 import { timeAgo, getDictionary, getDomainNameFromUrl, linkToKey, cn } from "@/lib/utils";
+import { Article } from '@/lib/types';
 
 // Move color data outside component
 const COLOR_DATA = [
@@ -53,18 +52,6 @@ const dToPercentage = (d: number | null | undefined): string => {
     const percentage = Math.min(100, calculateP(d));
     return `${percentage.toFixed(1)}%`;
 };
-
-interface Article {
-    title: string;
-    link: string;
-    pubDate: number;
-    description: string;
-    image: string;
-    source: string;
-    hidden: boolean;
-    distance?: number;
-    key?: string;
-}
 
 interface ArticleCardProps {
     locale: string;
@@ -112,7 +99,7 @@ export const ArticleCard = memo(function ArticleCard({ article, locale }: Articl
             className={cn("overflow-clip", ZONE_BORDER_COLORS[zone])}
         >
             <ArticleMedia 
-                description={article.image} 
+                image={article.image} 
                 placeHolder={domainName} 
             />
             <CardHeader>
@@ -130,8 +117,8 @@ export const ArticleCard = memo(function ArticleCard({ article, locale }: Articl
                         </h3>
                     </a>
                 </CardTitle>
-                <div className="text-sm text-muted-foreground pt-1">
-                    <Badge variant="secondary" className="mr-1" suppressHydrationWarning>
+                <div className="text-sm text-muted-foreground pt-1 gap-1 flex flex-row">
+                    <Badge variant="secondary" suppressHydrationWarning>
                         {timeAgoDate}
                     </Badge>
                     <Badge 
@@ -143,7 +130,10 @@ export const ArticleCard = memo(function ArticleCard({ article, locale }: Articl
                 </div>
             </CardHeader>
             <CardContent>
-                <div dangerouslySetInnerHTML={{ __html: article.description || '' }} />
+                <div 
+                    className="line-clamp-6 overflow-hidden"
+                    dangerouslySetInnerHTML={{ __html: article.description || '' }}
+                />
             </CardContent>
             <CardFooter>
                 <div className="leading-7 [&:not(:first-child)]:mt-6 text-ellipsis overflow-hidden">

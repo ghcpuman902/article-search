@@ -7,11 +7,10 @@ import {
 } from 'next/cache'
 
 
-import { Article, SuccessfulSource, FetchResult, MediaItem } from '@/lib/types'
+import { Article, SuccessfulSource, FetchResult, MediaItem, ImageData } from '@/lib/types'
 import { formatDate, getDomainNameFromUrl, linkToKey } from '@/lib/utils'
 import * as htmlparser2 from 'htmlparser2'
-import render from 'dom-serializer'
-import { Node, Element, Text, AnyNode } from 'domhandler'
+import { Node, Element, Text } from 'domhandler'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 
 // Constants
@@ -31,10 +30,16 @@ const needsSpecialHandling = (url: string): boolean => {
 
 
 // helper function to convert media in rss/atom feed to img
-const convertMediaToImg = (media: MediaItem[]): string => {
+const convertMediaToImg = (media: MediaItem[]): ImageData | null => {
   if (Array.isArray(media) && media.length > 0 && media[0].url) {
-    const { url: src, title: alt = '' } = media[0]
+    const { url: rawSrc, title: alt = '' } = media[0]
     let { width, height } = media[0]
+    
+    // Ensure the URL is properly formatted
+    const src = rawSrc.trim()
+    if (!src || !(src.startsWith('http') || src.startsWith('/'))) {
+      return null
+    }
 
     if (!width || !height) {
       const match = src.match(/(\d+)x(\d+)\.[\w\d]+$/i)
@@ -43,19 +48,23 @@ const convertMediaToImg = (media: MediaItem[]): string => {
       }
     }
 
-    const widthAndHeight = width && height ? `width="${width}" height="${height}"` : ``
-    return `<img src="${src}" alt="${alt}" ${widthAndHeight}>`
+    return {
+      src,
+      alt: alt || '',
+      ...(width ? { width } : {}),
+      ...(height ? { height } : {})
+    }
   }
-  return ''
+  return null
 }
 
 // helper function to parse description in rss/atom feed to description and images
-const parseDescription = (oDescription: string | null): { description: string; images: string[] } => {
+const parseDescription = (oDescription: string | null): { description: string; images: ImageData[] } => {
   if (!oDescription) {
     return { description: '', images: [] }
   }
   const dom = htmlparser2.parseDocument(oDescription)
-  const images: string[] = []
+  const images: ImageData[] = []
 
   const traverse = (node: Node): string[] => {
     if (node.type === 'root') {
@@ -70,8 +79,43 @@ const parseDescription = (oDescription: string | null): { description: string; i
       return text === 'The post' ? [] : [text]
     } else if (node.type === 'tag') {
       const tagNode = node as Element
-      if (tagNode.name === 'img' || tagNode.name === 'figure' || tagNode.name === 'picture') {
-        images.push(render(node as AnyNode))
+      if (tagNode.name === 'img') {
+        const rawSrc = tagNode.attribs.src
+        if (rawSrc) {
+          const src = rawSrc.trim()
+          if (src && (src.startsWith('http') || src.startsWith('/'))) {
+            const alt = tagNode.attribs.alt || ''
+            const width = parseInt(tagNode.attribs.width) || undefined
+            const height = parseInt(tagNode.attribs.height) || undefined
+            images.push({ 
+              src,
+              alt,
+              ...(width ? { width } : {}),
+              ...(height ? { height } : {})
+            })
+          }
+        }
+        return []
+      } else if (tagNode.name === 'figure' || tagNode.name === 'picture') {
+        const imgNode = tagNode.children.find(child => 
+          child.type === 'tag' && (child as Element).name === 'img'
+        ) as Element | undefined
+        
+        if (imgNode && imgNode.attribs.src) {
+          const rawSrc = imgNode.attribs.src
+          const src = rawSrc.trim()
+          if (src && (src.startsWith('http') || src.startsWith('/'))) {
+            const alt = imgNode.attribs.alt || ''
+            const width = parseInt(imgNode.attribs.width) || undefined
+            const height = parseInt(imgNode.attribs.height) || undefined
+            images.push({ 
+              src,
+              alt,
+              ...(width ? { width } : {}),
+              ...(height ? { height } : {})
+            })
+          }
+        }
         return []
       } else if (tagNode.name === 'p' && tagNode.children && tagNode.children.length >= 1 && tagNode.children[0].type === 'text') {
         const firstChild = tagNode.children[0] as Text

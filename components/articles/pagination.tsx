@@ -13,7 +13,7 @@ interface PaginationProps {
 }
 
 export async function Pagination({ totalPages, currentPage, basePath, searchParams }: PaginationProps) {
-  const maxVisiblePages = 3
+  const maxVisiblePages = 5
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
 
   let startPage = Math.max(currentPage - Math.floor(maxVisiblePages / 2), 1)

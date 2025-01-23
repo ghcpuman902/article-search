@@ -21,6 +21,7 @@ const RSS_DOMAINS = [
   'subarutelescope.org',
   'alma-telescope.jp',
   'jaxa.jp',
+  'cdn.mos.cms.futurecdn.net',
 ];
 
 const dns = require('dns');
