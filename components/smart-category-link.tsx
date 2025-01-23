@@ -36,9 +36,15 @@ const SmartCategoryLink = React.forwardRef<
   }, [])
 
   useEffect(() => {
-    const localStorageUrl = constructCategoryUrl(category, defaultQuery)
+    const params: UnifiedSearchParams = {
+      sort: (storedState?.sort || 'relevance') as SortOption,
+      days: (storedState?.days || '4') as FilterDaysOption,
+      page: storedState?.page,
+      q: localQuery
+    }
+    const localStorageUrl = constructCategoryUrl(category, params.q || '')
     setHref(localStorageUrl)
-  }, [category, query, defaultQuery])
+  }, [category, localQuery, storedState])
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery)
