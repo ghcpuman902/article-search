@@ -175,8 +175,12 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
       }),
       redirect: 'follow',
       //@ts-expect-error - Adding follow-redirects behavior
-      maxRedirects: 20
-    })
+      maxRedirects: 20,
+      next: {
+        revalidate: 0,
+      }
+    },
+    )
     clearTimeout(timeoutId)
     
     if (!response.ok) {
