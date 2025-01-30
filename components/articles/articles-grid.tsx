@@ -115,28 +115,64 @@ export async function ArticlesGrid({
   // Filter articles
   const filteredArticles = filterArticles(initialArticles, filterByDays);
   const visibleArticles = filteredArticles.filter(article => !article.hidden);
+
+  // Show message if no articles are available
+  if (!visibleArticles.length) {
+    return (
+      <div className="w-full text-center py-12">
+        <div className="max-w-2xl mx-auto px-4">
+          <h2 className="text-xl font-semibold mb-4">{dict.message.no_articles_found}</h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+            {dict.message.try_adjusting_filters}
+          </p>
+          <ul className="text-sm text-neutral-600 dark:text-neutral-400 list-disc list-inside">
+            <li>{dict.message.increase_time_range}</li>
+            <li>{dict.message.modify_search_terms}</li>
+            <li>{dict.message.check_back_later}</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
   
   // Handle async operations
   let sortedArticles: Article[] = [];
+  let relevanceError = false;
   
-  if (sortingMethod === 'relevance' && queryString) {
-    const [articleEmbeddings, queryEmbedding] = await Promise.all([
-      generateArticleEmbeddings(visibleArticles),
-      generateQueryEmbedding(queryString)
-    ]);
+  if (sortingMethod === 'relevance' && queryString && visibleArticles.length > 0) {
+    try {
+      const [articleEmbeddings, queryEmbedding] = await Promise.all([
+        generateArticleEmbeddings(visibleArticles),
+        generateQueryEmbedding(queryString)
+      ]);
 
-    sortedArticles = visibleArticles
-      .map((article) => {
-        const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
-        const distance = articleEmbedding
-          ? 1 - cosineSimilarity(
-              Array.from(queryEmbedding),
-              Array.from(articleEmbedding.embedding)
-            )
-          : Infinity;
-        return { ...article, distance };
-      })
-      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+      // Only proceed with similarity sorting if we got embeddings
+      if (articleEmbeddings?.length > 0) {
+        sortedArticles = visibleArticles
+          .map((article) => {
+            const articleEmbedding = articleEmbeddings.find(e => e.key === article.key);
+            const distance = articleEmbedding
+              ? 1 - cosineSimilarity(
+                  Array.from(queryEmbedding),
+                  Array.from(articleEmbedding.embedding)
+                )
+              : Infinity;
+            return { ...article, distance };
+          })
+          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+      } else {
+        relevanceError = true;
+        sortedArticles = visibleArticles.sort((a, b) => 
+          new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+        );
+      }
+    } catch (error) {
+      console.error('Error generating embeddings, falling back to date sort:', error);
+      relevanceError = true;
+      sortedArticles = visibleArticles.sort((a, b) => 
+        new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+      );
+    }
   } else {
     sortedArticles = visibleArticles.sort((a, b) => 
       new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
@@ -162,6 +198,16 @@ export async function ArticlesGrid({
         sortingMethod={sortingMethod}
       />
       
+      {relevanceError && sortingMethod === 'relevance' && (
+        <div className="w-full max-w-2xl mx-auto mb-6 px-4">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 text-amber-800 dark:text-amber-200">
+            <p className="text-sm">
+              {dict.message.relevance_sort_unavailable}
+            </p>
+          </div>
+        </div>
+      )}
+
       <ArticlesList
         articles={paginatedArticles}
         locale={locale}

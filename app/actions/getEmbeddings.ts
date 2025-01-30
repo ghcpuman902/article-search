@@ -45,6 +45,11 @@ export async function generateArticleEmbeddings(articles: Article[]): Promise<{
 }[]> {
     'use cache'
 
+    if (!articles || articles.length === 0) {
+        console.warn('No articles provided to generateArticleEmbeddings');
+        return [];
+    }
+
     const validArticles = articles.filter(article => {
         if (!article.key) {
             if (!article.link) {
@@ -84,7 +89,8 @@ export async function generateArticleEmbeddings(articles: Article[]): Promise<{
     });
 
     if (validArticles.length === 0) {
-        throw new Error('No valid articles to process after filtering');
+        console.warn('No valid articles to process after filtering');
+        return [];
     }
 
     const articleTexts = validArticles.map(article => {

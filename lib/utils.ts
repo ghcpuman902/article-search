@@ -27,6 +27,14 @@ export interface Dictionary {
     table: {
         [key: string]: string;
     };
+    message: {
+        no_articles_found: string;
+        try_adjusting_filters: string;
+        increase_time_range: string;
+        modify_search_terms: string;
+        check_back_later: string;
+        relevance_sort_unavailable: string;
+    };
 }
 
 export function getDictionary(locale?: string): Dictionary {
@@ -234,6 +242,36 @@ export function getDictionary(locale?: string): Dictionary {
             "ja-JP": "結果がありません。",
             "zh-CN": "没有结果。"
         },
+        "no_articles_found": {
+            "en-US": "No articles found",
+            "ja-JP": "記事が見つかりません",
+            "zh-CN": "未找到文章"
+        },
+        "try_adjusting_filters": {
+            "en-US": "Try adjusting your filters or search terms to find more articles.",
+            "ja-JP": "フィルターや検索条件を調整して、より多くの記事を見つけてください。",
+            "zh-CN": "请尝试调整过滤条件或搜索词以找到更多文章。"
+        },
+        "increase_time_range": {
+            "en-US": "Increase the time range",
+            "ja-JP": "期間を長くする",
+            "zh-CN": "增加时间范围"
+        },
+        "modify_search_terms": {
+            "en-US": "Modify your search terms",
+            "ja-JP": "検索語を変更する",
+            "zh-CN": "修改搜索词"
+        },
+        "check_back_later": {
+            "en-US": "Check back later for new articles",
+            "ja-JP": "後で新しい記事を確認する",
+            "zh-CN": "稍后再来查看新文章"
+        },
+        "relevance_sort_unavailable": {
+            "en-US": "Relevance sorting is temporarily unavailable. Articles are sorted by date instead.",
+            "ja-JP": "関連性によるソートは一時的に利用できません。代わりに日付順でソートしています。",
+            "zh-CN": "相关性排序暂时不可用。文章已按日期排序。"
+        },
         "previous": {
             "en-US": "Previous",
             "ja-JP": "前へ",
@@ -311,7 +349,15 @@ export function getDictionary(locale?: string): Dictionary {
             no_results: translations.no_results[selectedLocale],
             previous: translations.previous[selectedLocale],
             next: translations.next[selectedLocale]
-        }
+        },
+        message: {
+            no_articles_found: translations.no_articles_found[selectedLocale],
+            try_adjusting_filters: translations.try_adjusting_filters[selectedLocale],
+            increase_time_range: translations.increase_time_range[selectedLocale],
+            modify_search_terms: translations.modify_search_terms[selectedLocale],
+            check_back_later: translations.check_back_later[selectedLocale],
+            relevance_sort_unavailable: translations.relevance_sort_unavailable[selectedLocale],
+        },
     };
 }
 
