@@ -1,5 +1,3 @@
-export const experimental_ppr = true
-
 import React from 'react';
 
 import type { Metadata } from "next";
@@ -17,7 +15,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '../components/articles/header';
-import { Link } from 'lucide-react';
+import Link from 'next/link';
 // import { ReactScan } from '@/components/react-scan';
 
 // Metadata configurations

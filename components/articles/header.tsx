@@ -15,9 +15,12 @@ const transitionClasses = {
 
 export function Header() {
     const segment = useSelectedLayoutSegment()
-    const [displayedSegment, setDisplayedSegment] = useState(segment)
+    const [displayedSegment, setDisplayedSegment] = useState<string | null>(null)
 
     useEffect(() => {
+        // Initialize with current segment on client
+        setDisplayedSegment(segment)
+        
         if (segment) {
             setDisplayedSegment(segment)
         } else {
@@ -37,17 +40,17 @@ export function Header() {
                 <Link href="/">
                     <h1 className="text-5xl font-extrabold tracking-tight">
                         <div className="relative flex flex-wrap items-center whitespace-nowrap">
-                            <div className="inline-block">A</div>
-                            <div className={cn(
+                            <div key="a-letter" className="inline-block">A</div>
+                            <div key="rticle-text" className={cn(
                                 transitionClasses.base,
                                 segment ? transitionClasses.collapsed : transitionClasses.expanded
                             )}>rticle</div>
-                            <div className="transition-all duration-300 ease-out inline-block">S</div>
-                            <div className={cn(
+                            <div key="s-letter" className="transition-all duration-300 ease-out inline-block">S</div>
+                            <div key="earch-text" className={cn(
                                 transitionClasses.base,
                                 segment ? transitionClasses.collapsed : transitionClasses.expanded
                             )}>earch</div>
-                            <div className={cn(
+                            <div key="segment-text" className={cn(
                                 transitionClasses.base,
                                 segment ? transitionClasses.expanded : transitionClasses.collapsed
                             )}>

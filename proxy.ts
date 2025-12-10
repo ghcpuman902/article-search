@@ -1,4 +1,4 @@
-// Average middleware execution time: ~0.035ms
+// Average proxy execution time: ~0.035ms
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { geolocation } from '@vercel/functions';
@@ -23,7 +23,7 @@ const countryCodeToLocaleMap: Record<string, string> = {
 
 const SUPPORTED_LOCALES = new Set(['ja-JP', 'zh-CN']);
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     const urlLocale = url.searchParams.get('locale');
 
@@ -53,4 +53,4 @@ export default function middleware(request: NextRequest) {
     response.headers.set('x-country-code', countryCode);
     
     return response;
-} 
+}

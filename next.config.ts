@@ -27,16 +27,8 @@ const RSS_DOMAINS = [
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const nextConfig: NextConfig = {
-  eslint: {
-    dirs: ['app', 'components', 'lib']
-  },
-  experimental: {
-    ppr: 'incremental',
-    dynamicIO: true,
-    turbo: {
-      // Add your turbo config options here
-    },
-  },
+  cacheComponents: true, // Required for 'use cache' directives
+  output: 'standalone', // Try standalone output to avoid static generation issues
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

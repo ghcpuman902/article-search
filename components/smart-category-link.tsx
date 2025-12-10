@@ -87,7 +87,7 @@ const SmartCategoryLink = React.forwardRef<
       <CardContent className="p-2 space-y-0 pt-0">
         <div className="flex justify-between items-center">
           <Link href={getDefaultQueryUrl()} suppressHydrationWarning>
-            <h3 className="text-2xl font-semibold">{displayName}</h3>
+            <h3 className="text-2xl font-semibold leading-5 tracking-tight">{displayName}</h3>
           </Link>
           <div className="flex items-center gap-1">
             <div className="h-2 w-2 rounded-full bg-green-500 relative before:absolute before:inset-0 before:rounded-full before:bg-green-500 before:animate-ping before:opacity-75" />

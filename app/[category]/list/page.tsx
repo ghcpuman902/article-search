@@ -1,5 +1,3 @@
-export const experimental_ppr = true
-
 import React, { Suspense } from 'react'
 import { fetchAllArticles } from '@/app/actions/fetchArticles'
 import { redirect } from 'next/navigation';

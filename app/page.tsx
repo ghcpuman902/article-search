@@ -1,5 +1,3 @@
-export const experimental_ppr = true
-
 import { GROUP_CONFIG, RSS_SOURCES } from '@/lib/rss-sources'
 import { Footer } from '@/components/articles/footer'
 import { SmartCategoryLink } from '@/components/smart-category-link'

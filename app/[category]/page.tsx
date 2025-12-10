@@ -1,5 +1,3 @@
-export const experimental_ppr = true
-
 // import {
 //   // unstable_cacheTag as cacheTag,
 //   unstable_cacheLife as cacheLife,
@@ -42,27 +40,8 @@ import { Footer } from '@/components/articles/footer'
 //   );
 // }
 
-// Update generateMetadata to handle Promise
-export async function generateMetadata({
-  params,
-  searchParams
-}: {
-  params: Promise<{ category?: string }>,
-  searchParams: Promise<UnifiedSearchParams>
-}) {
-  const category = (await params).category || 'astronomy'
-  const resolvedSearchParams = await searchParams
-
-  if (!resolvedSearchParams.q) {
-    return {
-      redirect: {
-        destination: `/${category}?q=` + encodeURIComponent(RSS_SOURCES[category]?.defaultQuery || RSS_SOURCES['astronomy'].defaultQuery),
-        permanent: false,
-      },
-    }
-  }
-  return {}
-}
+// Temporarily removed generateMetadata to fix build issues
+// TODO: Re-implement with proper static metadata generation
 
 export default async function Page({
   params,
