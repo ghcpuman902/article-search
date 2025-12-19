@@ -1,8 +1,6 @@
 "use client"; // Required for client-side interactivity
 
 import { useState } from "react";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 
 const HalftoneEffect = () => {
   // State for controlling the halftone effect
@@ -21,38 +19,47 @@ const HalftoneEffect = () => {
       <div className="space-y-4 mb-6">
 
         <div>
-          <Label htmlFor="dot-size">Dot Size: {dotSize}px</Label>
-          <Slider
+          <label htmlFor="dot-size" className="block text-sm font-medium mb-2">
+            Dot Size: {dotSize}px
+          </label>
+          <input
             id="dot-size"
+            type="range"
             min={1}
             max={20}
-            value={[dotSize]}
-            onValueChange={([value]) => setDotSize(value)}
+            value={dotSize}
+            onChange={(e) => setDotSize(Number(e.target.value))}
             className="w-64"
           />
         </div>
 
         <div>
-          <Label htmlFor="bleed">Bleed: {bleed}</Label>
-          <Slider
+          <label htmlFor="bleed" className="block text-sm font-medium mb-2">
+            Bleed: {bleed}
+          </label>
+          <input
             id="bleed"
+            type="range"
             min={0}
             max={1}
             step={0.1}
-            value={[bleed]}
-            onValueChange={([value]) => setBleed(value)}
+            value={bleed}
+            onChange={(e) => setBleed(Number(e.target.value))}
             className="w-64"
           />
         </div>
 
         <div>
-          <Label htmlFor="rotation">Rotation: {rotation}°</Label>
-          <Slider
+          <label htmlFor="rotation" className="block text-sm font-medium mb-2">
+            Rotation: {rotation}°
+          </label>
+          <input
             id="rotation"
+            type="range"
             min={0}
             max={360}
-            value={[rotation]}
-            onValueChange={([value]) => setRotation(value)}
+            value={rotation}
+            onChange={(e) => setRotation(Number(e.target.value))}
             className="w-64"
           />
         </div>

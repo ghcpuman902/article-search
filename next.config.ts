@@ -29,6 +29,12 @@ dns.setDefaultResultOrder('ipv4first');
 const nextConfig: NextConfig = {
   cacheComponents: true, // Required for 'use cache' directives
   output: 'standalone', // Try standalone output to avoid static generation issues
+  turbopack: {
+    root: '/Users/manglekuo/dev/nextjs/article-search', // Set explicit turbopack root to silence warning
+  },
+  experimental: {
+    // Experimental features can be added here if needed
+  },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

@@ -54,6 +54,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
+        {/* Temporarily disabled ThemeProvider to fix build issues */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="px-4 py-2 md:px-8 md:py-4">
             <Suspense fallback={<header role="banner">

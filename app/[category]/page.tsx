@@ -1,95 +1,37 @@
-// import {
-//   // unstable_cacheTag as cacheTag,
-//   unstable_cacheLife as cacheLife,
-//   // revalidateTag,
-// } from 'next/cache'
+import React, { Suspense } from 'react'
 
-import React from 'react'
-
-import { ArticlesGrid } from '@/components/articles/articles-grid'
-import { SuccessfulSources } from "@/components/articles/successful-sources"
 import { LoadingCardGrid, LoadingSearchSortFilter, LoadingSources } from '@/components/articles/loading-templates'
-import { Suspense } from 'react'
-import { fetchAllArticles } from '@/app/actions/fetchArticles'
-import { redirect } from 'next/navigation';
-
 import { UnifiedSearchParams } from '@/lib/types';
-import { formatDate } from '@/lib/utils'
-import { RSS_SOURCES } from '@/lib/rss-sources'
-import { SearchSortFilter } from '@/components/articles/search-sort-filter';
 import { Footer } from '@/components/articles/footer'
+import { ArticlesContent } from './articles-content'
+import { ServerRenderTime } from '@/components/articles/server-render-time'
 
-
-// Add generateStaticParams export with URL encoded queries
-// export async function generateStaticParams() {
-//   const categories = Object.keys(RSS_SOURCES);
-//   const sortOptions: SortOption[] = ['relevance', 'date'];
-//   const durationOptions: FilterDaysOption[] = ['30', '7', '4', '2'];
-
-//   return categories.flatMap(category => 
-//     sortOptions.flatMap(sort => 
-//       durationOptions.map(days => ({
-//         category,
-//         searchParams: {
-//           q: encodeURIComponent(RSS_SOURCES[category].defaultQuery),
-//           sort,
-//           days,
-//         }
-//       }))
-//     )
-//   );
-// }
-
-// Temporarily removed generateMetadata to fix build issues
-// TODO: Re-implement with proper static metadata generation
-
-export default async function Page({
+export default function Page({
   params,
   searchParams,
 }: {
   params: Promise<{ category?: string }>,
   searchParams: Promise<UnifiedSearchParams>
 }) {
-  const category = (await params).category || 'astronomy';
-  const resolvedSearchParams = await searchParams;
-  const locale = resolvedSearchParams.locale || 'en-US';
-
-  if (!resolvedSearchParams.q) {
-    redirect(`/${category}?q=` + encodeURIComponent(RSS_SOURCES[category]?.defaultQuery || RSS_SOURCES['astronomy'].defaultQuery));
-  }
-
-  const { articles, successfulSources, updateTime } = await fetchAllArticles(category);
-
   return (
     <main role="main">
-      <Suspense fallback={<LoadingSources locale={locale} />}>
-        <SuccessfulSources
-          successfulSources={successfulSources}
-          articles={articles}
-          updateTime={updateTime}
-          params={resolvedSearchParams}
-          locale={locale}
-        />
-      </Suspense>
-
-      <Suspense fallback={<LoadingSearchSortFilter locale={locale} />}>
-        <SearchSortFilter locale={locale} />
-      </Suspense>
-
-      <Suspense fallback={<LoadingCardGrid locale={locale} />}>
-        <ArticlesGrid
-          articles={articles}
-          updateTime={updateTime}
-          params={resolvedSearchParams}
-          locale={locale}
+      <Suspense 
+        fallback={
+          <>
+            <LoadingSources />
+            <LoadingSearchSortFilter />
+            <LoadingCardGrid />
+          </>
+        }
+      >
+        <ArticlesContent
+          params={params}
+          searchParams={searchParams}
         />
       </Suspense>
 
       <footer className="flex flex-col w-full items-center text-center text-neutral-400">
-        <Suspense fallback={<p>Search Params: <code className="font-mono bg-neutral-100 dark:bg-neutral-800 animate-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</code></p>}>
-          <p>Search Params: <code className="font-mono">{JSON.stringify(resolvedSearchParams)}</code></p>
-        </Suspense>
-        <p>Server page render: {formatDate(new Date())}</p>
+        <ServerRenderTime />
         <Footer />
       </footer>
 

@@ -7,7 +7,7 @@ import { linkToKey } from "@/lib/utils"
 
 import {
   // unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife,
+  cacheLife,
   // revalidateTag,
 } from 'next/cache'
 
@@ -26,10 +26,13 @@ export async function generateQueryEmbedding(query: string): Promise<Float64Arra
     
     try {
         const { embedding } = await embed({
-            model: openai.embedding('text-embedding-3-small', {
-                dimensions: 512
-            }),
+            model: openai.textEmbeddingModel('text-embedding-3-small'),
             value: query,
+            providerOptions: {
+                openai: {
+                    dimensions: 512,
+                },
+            },
         });
 
         return new Float64Array(embedding);
@@ -105,10 +108,13 @@ Content: ${article.description.replace(/\n|\t|[ ]{4}/g, ' ').replace(/<[^>]*>/g,
 
     try {
         const { embeddings } = await embedMany({
-            model: openai.embedding('text-embedding-3-small', {
-                dimensions: 512
-            }),
+            model: openai.textEmbeddingModel('text-embedding-3-small'),
             values: articleTexts,
+            providerOptions: {
+                openai: {
+                    dimensions: 512,
+                },
+            },
         });
 
         return validArticles.map((article, index) => {

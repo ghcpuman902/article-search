@@ -2,7 +2,7 @@
 
 import {
   // unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife,
+  cacheLife,
   // revalidateTag,
 } from 'next/cache'
 
