@@ -12,9 +12,6 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto w-full min-h-96 mt-2 mb-8">
-      <p className="mb-8 max-w-prose text-pretty text-sm text-muted-foreground md:mb-8 md:text-base">
-        ArticleSearch aggregates and ranks articles from diverse RSS sources, using OpenAI embeddings to intelligently sort results by relevance to your search query.
-      </p>
       <div className="grid grid-cols-1 gap-4 xl:gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {Object.entries(groupedCategories).map(([groupName, categories]) => (
           <section

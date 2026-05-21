@@ -15,6 +15,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '../components/articles/header';
+import { FloatingArticleIntro } from '@/components/articles/floating-article-intro';
 import Link from 'next/link';
 // import { ReactScan } from '@/components/react-scan';
 
@@ -76,6 +77,7 @@ export default async function RootLayout({
             <Toaster />
             <Analytics />
             {shouldInjectToolbar && <VercelToolbar />}
+            <FloatingArticleIntro />
             {/* <ReactScan /> */}
           </Suspense>
         </ThemeProvider>

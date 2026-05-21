@@ -93,3 +93,28 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .scrollbar-thin-transparent {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+  }
+
+  .scrollbar-thin-transparent::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin-transparent::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin-transparent::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-thin-transparent::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+  }
+}

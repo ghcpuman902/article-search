@@ -27,6 +27,7 @@ const RSS_DOMAINS = [
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const nextConfig: NextConfig = {
+  transpilePackages: ['@workspace/ui'],
   cacheComponents: true, // Required for 'use cache' directives
   output: 'standalone', // Try standalone output to avoid static generation issues
   turbopack: {
