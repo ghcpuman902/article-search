@@ -38,3 +38,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+packages/ui/node_modules/.bin/tsc
+packages/ui/node_modules/.bin/tsserver
