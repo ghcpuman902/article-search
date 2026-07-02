@@ -1,14 +1,13 @@
 'use server'
 
 import { openai } from '@ai-sdk/openai';
-import { embedMany, embed } from 'ai';
+import { embed } from 'ai';
 import { Article } from "@/lib/types"
 import { linkToKey } from "@/lib/utils"
 
 import {
-  // unstable_cacheTag as cacheTag,
+  cacheTag,
   cacheLife,
-  // revalidateTag,
 } from 'next/cache'
 
 
@@ -42,12 +41,46 @@ export async function generateQueryEmbedding(query: string): Promise<Float64Arra
     }
 }
 
+const buildArticleEmbeddingText = (article: Article): string => {
+    const date = new Date(article.pubDate).toISOString().split('T')[0];
+    return `Title: ${article.title}
+Source: ${article.source}
+Published: ${date}
+URL: ${article.link}
+${article.image ? `![Article image](${article.image})` : ''}
+Content: ${article.description.replace(/\n|\t|[ ]{4}/g, ' ').replace(/<[^>]*>/g, '')}`
+};
+
+// Cached per article (keyed on article.key), not per batch. Batching all
+// articles into a single embedMany() call meant one new/changed RSS item
+// invalidated the whole cache entry and re-embedded every article again on
+// every relevance-sorted page load. OpenAI's own prompt caching does not
+// apply to the embeddings endpoint (it's chat/completions-only), so this
+// per-article Next.js cache is the only lever here - it's what keeps
+// steady-state traffic from re-paying for embeddings of articles that
+// haven't changed since the last fetch.
+const getArticleEmbedding = async (key: string, text: string): Promise<Float64Array> => {
+    'use cache: remote'
+    cacheTag('article-embeddings', `article-embedding-${key}`)
+    cacheLife('days')
+
+    const { embedding } = await embed({
+        model: openai.textEmbeddingModel('text-embedding-3-small'),
+        value: text,
+        providerOptions: {
+            openai: {
+                dimensions: 512,
+            },
+        },
+    });
+
+    return new Float64Array(embedding);
+}
+
 export async function generateArticleEmbeddings(articles: Article[]): Promise<{
     key: string;
     embedding: Float64Array;
 }[]> {
-    'use cache'
-
     if (!articles || articles.length === 0) {
         console.warn('No articles provided to generateArticleEmbeddings');
         return [];
@@ -96,52 +129,13 @@ export async function generateArticleEmbeddings(articles: Article[]): Promise<{
         return [];
     }
 
-    const articleTexts = validArticles.map(article => {
-        const date = new Date(article.pubDate).toISOString().split('T')[0];
-        return `Title: ${article.title}
-Source: ${article.source}
-Published: ${date}
-URL: ${article.link}
-${article.image ? `![Article image](${article.image})` : ''}
-Content: ${article.description.replace(/\n|\t|[ ]{4}/g, ' ').replace(/<[^>]*>/g, '')}`
-    });
-
     try {
-        const { embeddings } = await embedMany({
-            model: openai.textEmbeddingModel('text-embedding-3-small'),
-            values: articleTexts,
-            providerOptions: {
-                openai: {
-                    dimensions: 512,
-                },
-            },
-        });
-
-        return validArticles.map((article, index) => {
-            if (!article.key) {
-                if (!article.link) {
-                    console.error('Skipping article: both key and link are missing', {
-                        title: article.title,
-                        source: article.source,
-                        pubDate: article.pubDate
-                    });
-                    throw new Error('Article missing both key and link');
-                }
-                
-                console.warn('Article missing key, using link-based key as fallback', {
-                    title: article.title,
-                    link: article.link,
-                    source: article.source,
-                    generatedKey: linkToKey(article.link)
-                });
-                article.key = linkToKey(article.link);
-            }
-            
-            return {
-                key: article.key,
-                embedding: new Float64Array(embeddings[index])
-            };
-        });
+        return await Promise.all(
+            validArticles.map(async article => ({
+                key: article.key as string,
+                embedding: await getArticleEmbedding(article.key as string, buildArticleEmbeddingText(article)),
+            }))
+        );
     } catch (error) {
         console.error('Error generating embeddings:', error);
         throw new Error('Failed to generate embeddings. Please try again later.');

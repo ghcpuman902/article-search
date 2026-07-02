@@ -7,9 +7,12 @@ import { UnifiedSearchParams } from '@/lib/types'
 import { SearchSortFilter } from '@/components/articles/search-sort-filter'
 import { redirect } from 'next/navigation'
 import { RSS_SOURCES } from '@/lib/rss-sources'
-import { connection } from 'next/server'
 
-// Async component that fetches and displays articles data
+// Async component that fetches and displays articles data. Reading
+// `searchParams` below already opts this component into dynamic rendering
+// under Cache Components (it must run per-request to read `q`/`sort`/`days`),
+// so an explicit connection() call to force dynamic behavior was redundant
+// extra work on every request.
 export const ArticlesContent = async ({
   params,
   searchParams,
@@ -17,9 +20,6 @@ export const ArticlesContent = async ({
   params: Promise<{ category?: string }>;
   searchParams: Promise<UnifiedSearchParams>;
 }) => {
-  // Defer rendering until request is received - enables streaming
-  await connection();
-  
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const category = resolvedParams.category || 'astronomy';

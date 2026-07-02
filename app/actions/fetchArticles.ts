@@ -1,9 +1,8 @@
 'use server'
 
 import {
-  // unstable_cacheTag as cacheTag,
+  cacheTag,
   cacheLife,
-  // revalidateTag,
 } from 'next/cache'
 
 
@@ -157,9 +156,14 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
         'Cache-Control': 'max-age=0',
         'Upgrade-Insecure-Requests': '1'
       },
-      // Only add performance-critical options for problematic sites
+      // Only add performance-critical options for problematic sites.
+      // Freshness here is governed entirely by the enclosing
+      // fetchAllArticles cacheLife() ('use cache: remote') - confirmed via
+      // production testing that its revalidate/expire config is respected
+      // regardless of these inner fetch options, so no cache/revalidate
+      // directives are set on the fetch itself to avoid implying a second,
+      // contradictory source of truth for freshness.
       ...(useSpecialHandling ? {
-        cache: 'no-store',
         keepalive: true,
         credentials: 'omit',
         revalidateUnauthorized: false,
@@ -170,15 +174,11 @@ export const fetchArticlesFromFeed = async (url: string): Promise<Article[]> => 
           maxSockets: 1,
         })
       } : {
-        cache: 'no-store',
         credentials: 'same-origin'
       }),
       redirect: 'follow',
       //@ts-expect-error - Adding follow-redirects behavior
       maxRedirects: 20,
-      next: {
-        revalidate: 0,
-      }
     },
     )
     clearTimeout(timeoutId)
@@ -243,8 +243,16 @@ export const fetchAllArticles = async (
   category: string = 'astronomy', 
   params: FetchAllArticlesParams = {}
 ): Promise<FetchResult> => {
-  'use cache';
-  
+  // 'remote' shares this cache across all Fluid Compute instances/regions
+  // (Vercel-hosted, KV-backed) instead of per-instance memory, so the RSS
+  // aggregation work done by the /api/revalidate-feeds cron is actually
+  // reused by user requests instead of being recomputed per instance.
+  'use cache: remote';
+
+  // Tagged per-category so the revalidate-feeds cron can invalidate and
+  // re-warm a single category without touching the others.
+  cacheTag(`articles-${category}`);
+
   cacheLife({
     stale: 5*60, // 5 minutes
     revalidate: 3600, // 1 hour
