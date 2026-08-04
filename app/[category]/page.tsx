@@ -35,7 +35,9 @@ export default function Page({
       </Suspense>
 
       <footer className="flex flex-col w-full items-center text-center text-neutral-400">
-        <ServerRenderTime />
+        <Suspense fallback={null}>
+          <ServerRenderTime />
+        </Suspense>
         <Footer />
       </footer>
 
