@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.64",
@@ -36,10 +36,10 @@
     "i18next": "^26.2.0",
     "lucide-react": "^1.16.0",
     "motion": "^12.39.0",
-    "next": "16.2.10",
+    "next": "16.3.0",
     "next-themes": "^0.4.6",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-i18next": "^17.0.8",
     "react-scan": "^0.5.6",
     "tailwind-merge": "^3.6.0",
@@ -49,12 +49,12 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/node": "^25.9.1",
-    "@types/react": "19.2.15",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "@vercel/config": "^0.5.5",
     "autoprefixer": "^10.5.0",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "16.2.10",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.0",
     "globals": "^17.6.0",
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.19",
@@ -63,8 +63,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "19.2.15",
-      "@types/react-dom": "19.2.3"
+      "@types/react": "19.2.18",
+      "@types/react-dom": "19.2.4"
     }
   }
 }

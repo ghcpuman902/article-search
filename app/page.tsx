@@ -2,6 +2,10 @@ import { GROUP_CONFIG, RSS_SOURCES } from '@/lib/rss-sources'
 import { Footer } from '@/components/articles/footer'
 import { SmartCategoryLink } from '@/components/smart-category-link'
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 export default async function HomePage() {
   const groupedCategories = Object.entries(RSS_SOURCES).reduce((acc, [key, value]) => {
     const group = value.group
