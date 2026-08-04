@@ -29,7 +29,6 @@ dns.setDefaultResultOrder('ipv4first');
 const nextConfig: NextConfig = {
   transpilePackages: ['@workspace/ui'],
   cacheComponents: true, // Required for 'use cache' directives
-  output: 'standalone', // Try standalone output to avoid static generation issues
   turbopack: {
     // Absolute path required; resolve from this config so local and Vercel builds both work
     root: __dirname,
