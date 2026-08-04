@@ -31,7 +31,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true, // Required for 'use cache' directives
   output: 'standalone', // Try standalone output to avoid static generation issues
   turbopack: {
-    root: '/Users/manglekuo/dev/nextjs/article-search', // Set explicit turbopack root to silence warning
+    // Absolute path required; resolve from this config so local and Vercel builds both work
+    root: __dirname,
   },
   experimental: {
     // Experimental features can be added here if needed
