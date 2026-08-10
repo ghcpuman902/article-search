@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | ArticleSearch",
     default: "ArticleSearch",
   },
-  description: 'ArticleSearch aggregates and ranks articles from diverse RSS sources, using OpenAI embeddings to intelligently sort results by relevance to your search query.',
+  description: 'ArticleSearch aggregates and ranks articles from diverse RSS sources, using AI embeddings to intelligently sort results by relevance to your search query.',
   creator: 'Mangle Kuo',
   authors: [
     {

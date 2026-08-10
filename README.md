@@ -1,6 +1,6 @@
 # ArticleSearch
 
-ArticleSearch aggregates and ranks articles from diverse RSS sources, using OpenAI embeddings to intelligently sort results by relevance to your search query.
+ArticleSearch aggregates and ranks articles from diverse RSS sources, using AI Gateway embeddings (cached in Upstash Redis) to intelligently sort results by relevance to your search query.
 
 ## Architecture Overview
 
@@ -91,7 +91,8 @@ The application implements a multi-level caching strategy:
 
 - Environment: Next.js with TypeScript
 - Key Dependencies:
-  - OpenAI for embeddings
+  - Vercel AI SDK + AI Gateway for embeddings
+  - Upstash Redis for embedding cache
   - Vercel for analytics and tooling
   - Geist fonts for typography
   - Tailwind CSS for styling

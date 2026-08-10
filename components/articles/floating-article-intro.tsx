@@ -27,7 +27,7 @@ Everyone is suddenly talking about **llms.txt** and writing markdown for models 
 
 ## Embeddings: server-side search, and one experiment I rolled back
 
-Relevance sorting runs on the server today: **text-embedding-3-small** at 512 dimensions, cached with Next.js **use cache**, then ranked with cosine similarity before the page renders. Sort by date and none of that runs.
+Relevance sorting runs on the server today: **text-embedding-3-small** at 512 dimensions via the AI Gateway, cached in **Upstash Redis**, then ranked with cosine similarity before the page renders. Sort by date and none of that runs.
 
 I did try pushing embeddings to the browser first. The idea was to take each vector as a raw **Float64Array**, pack the bytes, **base64-encode** the payload, decode on the client, and run cosine similarity locally so changing sort or filters would not need another server round trip. In practice the upfront transfer and sync cost outweighed the win; server-side caching was simpler and more reliable, so I reverted.
 
@@ -37,7 +37,7 @@ Cover thumbnails get a **halftone look in pure CSS**: layered blend modes, no ca
 
 ## Honest limits
 
-You only get what the **RSS feed exposes**, not full paywalled text, so translation still starts from the snippet. **OpenAI** is involved when you sort by relevance, though browsing by date alone avoids that cost. I am not offering legal advice here; the intent is non-profit use with attribution, and publishers' terms still apply. A query that works well in one category can look empty in another because the thresholds are not universal.
+You only get what the **RSS feed exposes**, not full paywalled text, so translation still starts from the snippet. **AI embeddings** (via Vercel AI Gateway) run when you sort by relevance; browsing by date alone avoids that cost. I am not offering legal advice here; the intent is non-profit use with attribution, and publishers' terms still apply. A query that works well in one category can look empty in another because the thresholds are not universal.
 `,
 };
 
