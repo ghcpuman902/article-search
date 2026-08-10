@@ -1,4 +1,5 @@
 import React from 'react';
+import { connection } from 'next/server';
 
 import { Badge } from "@/components/ui/badge";
 import { Dictionary, getDictionary, getDomainNameFromUrl, linkToKey } from "@/lib/utils";
@@ -13,13 +14,16 @@ interface SuccessfulSourcesProps {
     locale: string;
 }
 
-export function SuccessfulSources({
+export async function SuccessfulSources({
     successfulSources,
     articles: initialArticles,
     updateTime,
     params,
     locale = 'en-US'
 }: SuccessfulSourcesProps) {
+    // Date.now() is request-time; opt into dynamic rendering before reading it.
+    await connection();
+
     const dict = getDictionary(locale);
     const filterByDays = getFilterDays(params.days);
 

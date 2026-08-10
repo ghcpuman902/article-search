@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { fetchAllArticles } from '@/app/actions/fetchArticles'
+import { fetchAllArticles } from '@/lib/fetch-articles'
 import { redirect } from 'next/navigation';
 import { UnifiedSearchParams } from '@/lib/types';
 import { RSS_SOURCES } from '@/lib/rss-sources';

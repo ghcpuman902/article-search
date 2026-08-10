@@ -1,4 +1,4 @@
-'use server'
+import 'server-only'
 
 import { embed } from 'ai'
 import { Article } from '@/lib/types'

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ArticlesGrid } from '@/components/articles/articles-grid'
 import { SuccessfulSources } from "@/components/articles/successful-sources"
-import { fetchAllArticles } from '@/app/actions/fetchArticles'
+import { fetchAllArticles } from '@/lib/fetch-articles'
 import { UnifiedSearchParams } from '@/lib/types'
 import { SearchSortFilter } from '@/components/articles/search-sort-filter'
 import { redirect } from 'next/navigation'

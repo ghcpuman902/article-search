@@ -325,7 +325,7 @@ export const RSS_SOURCES: Record<string, RSSSourceCategory> = {
       "https://www.universetoday.com/feed",
       "https://www.space.com/feeds/news",
       "https://www.sciencealert.com/feed",
-      "https://skyandtelescope.org/astronomy-news/feed",
+      "https://skyandtelescope.com/astronomy-news/feed/",
       "https://spacenews.com/feed/",
       "http://rss.sciam.com/ScientificAmerican-Global",
       // "https://ras.ac.uk/rss.xml",

@@ -1,14 +1,17 @@
 import { cosineSimilarity } from 'ai'
 
-import { generateArticleEmbeddings, generateQueryEmbedding } from '@/app/actions/getEmbeddings'
+import { generateArticleEmbeddings, generateQueryEmbedding } from '@/lib/embeddings'
 import { Article, SortOption } from '@/lib/types'
 import { linkToKey } from '@/lib/utils'
 
 export const DEFAULT_FILTER_DAYS = 4
 export const TOP_REC_COUNT = 10
 
-export const filterArticles = (articles: Article[], filterByDays: number): Article[] => {
-  const currentTime = Date.now()
+export const filterArticles = (
+  articles: Article[],
+  filterByDays: number,
+  now = Date.now()
+): Article[] => {
   const daysInMs = filterByDays * 24 * 60 * 60 * 1000
 
   return articles
@@ -17,7 +20,7 @@ export const filterArticles = (articles: Article[], filterByDays: number): Artic
     )
     .map(article => ({
       ...article,
-      hidden: (currentTime - new Date(article.pubDate).getTime()) > daysInMs
+      hidden: (now - new Date(article.pubDate).getTime()) > daysInMs
     }))
 }
 
@@ -30,13 +33,16 @@ export const rankArticles = async (
     queryString,
     sortingMethod,
     filterByDays,
+    now = Date.now(),
   }: {
     queryString: string
     sortingMethod: SortOption
     filterByDays: number
+    /** Request-time clock; pass after `await connection()` under Cache Components. */
+    now?: number
   }
 ): Promise<{ sortedArticles: Article[]; relevanceError: boolean }> => {
-  const filteredArticles = filterArticles(articles, filterByDays)
+  const filteredArticles = filterArticles(articles, filterByDays, now)
   const visibleArticles = filteredArticles.filter(article => !article.hidden)
 
   if (!visibleArticles.length) {

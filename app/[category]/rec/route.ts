@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server'
 
-import { fetchAllArticles } from '@/app/actions/fetchArticles'
+import { fetchAllArticles } from '@/lib/fetch-articles'
 import {
   DEFAULT_FILTER_DAYS,
   TOP_REC_COUNT,
   formatArticlesAsText,
   rankArticles,
 } from '@/lib/article-ranking'
+import { enforceRateLimit } from '@/lib/rate-limit'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 import { SortOption } from '@/lib/types'
 
@@ -16,6 +17,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ category: string }> }
 ) {
+  const rate = await enforceRateLimit(request, 'rec')
+  if (!rate.ok) {
+    return rate.response
+  }
+
   const { category: rawCategory } = await params
   const category = RSS_SOURCES[rawCategory] ? rawCategory : 'astronomy'
   const searchParams = request.nextUrl.searchParams
@@ -39,6 +45,7 @@ export async function GET(
     queryString,
     sortingMethod,
     filterByDays,
+    now: Date.now(),
   })
 
   const text = formatArticlesAsText(sortedArticles, TOP_REC_COUNT)
@@ -48,6 +55,7 @@ export async function GET(
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-store',
+      ...Object.fromEntries(rate.headers.entries()),
     },
   })
 }

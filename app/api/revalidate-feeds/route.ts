@@ -1,5 +1,8 @@
 import { updateTag } from 'next/cache'
-import { fetchAllArticles } from '@/app/actions/fetchArticles'
+
+import { fetchAllArticles } from '@/lib/fetch-articles'
+import { assertCronAuthorized } from '@/lib/cron-auth'
+import { enforceRateLimit } from '@/lib/rate-limit'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 
 // Triggered by the vercel.ts crons. Runs the RSS aggregation (and, via
@@ -8,9 +11,13 @@ import { RSS_SOURCES } from '@/lib/rss-sources'
 // 'use cache: remote' entry in fetchAllArticles is already warm when
 // traffic arrives.
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 })
+  const rate = await enforceRateLimit(request, 'cron')
+  if (!rate.ok) {
+    return rate.response
+  }
+
+  if (!assertCronAuthorized(request)) {
+    return new Response('Unauthorized', { status: 401, headers: rate.headers })
   }
 
   const { searchParams } = new URL(request.url)
@@ -40,5 +47,8 @@ export async function GET(request: Request) {
       : { ok: false, error: result.reason instanceof Error ? result.reason.message : 'Unknown error' }),
   }))
 
-  return Response.json({ revalidated: summary })
+  return Response.json(
+    { revalidated: summary },
+    { headers: rate.headers }
+  )
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Suspense } from 'react'
+import { connection } from 'next/server'
 import { formatDate, getDictionary } from "@/lib/utils"
 import { Article, SortOption, UnifiedSearchParams } from "@/lib/types"
 import { Pagination } from "@/components/articles/pagination"
@@ -43,6 +44,10 @@ export async function ArticlesGrid({
   params, 
   locale='en-US' 
 }: ArticlesGridProps) {
+  // Rank/filter uses Date.now(); establish request-time context first.
+  await connection();
+  const now = Date.now();
+
   const dict = getDictionary(locale);
   
   // Parse params with validation
@@ -55,6 +60,7 @@ export async function ArticlesGrid({
     queryString,
     sortingMethod,
     filterByDays,
+    now,
   });
 
   // Show message if no articles are available

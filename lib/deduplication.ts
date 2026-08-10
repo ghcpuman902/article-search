@@ -1,5 +1,5 @@
 import { Article } from "@/lib/types"
-import { generateEmbeddings } from '@/app/actions/getEmbeddings'
+import { generateEmbeddings } from '@/lib/embeddings'
 import { cosineSimilarity } from 'ai'
 
 interface DuplicationMetrics {
