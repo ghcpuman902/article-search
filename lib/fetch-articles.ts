@@ -254,9 +254,9 @@ export const fetchAllArticles = async (
   cacheTag(`articles-${category}`);
 
   cacheLife({
-    stale: 5*60, // 5 minutes
-    revalidate: 3600, // 1 hour
-    expire: 4*3600, // 2 hours
+    stale: 60 * 60,
+    revalidate: 7 * 24 * 60 * 60,
+    expire: 8 * 24 * 60 * 60,
   })
 
   // Add debug timestamp before cache configuration

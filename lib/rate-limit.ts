@@ -24,15 +24,12 @@ const getLimiter = (kind: RateLimitKind): Ratelimit => {
           redis,
           limiter: Ratelimit.slidingWindow(30, '1 m'),
           prefix: 'rl:rec',
-          analytics: true,
-          enableProtection: true,
         })
       : // Defense-in-depth for cron/auth probing (real cron still needs CRON_SECRET).
         new Ratelimit({
           redis,
           limiter: Ratelimit.slidingWindow(20, '1 m'),
           prefix: 'rl:cron',
-          analytics: true,
         })
 
   limiters[kind] = limiter
@@ -70,7 +67,6 @@ export const enforceRateLimit = async (
       userAgent,
     })
 
-    // Flush analytics / deny-list sync after the response on Fluid Compute.
     waitUntil(pending)
 
     const headers = buildHeaders(remaining, reset, limit)

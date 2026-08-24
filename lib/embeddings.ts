@@ -31,6 +31,9 @@ const queryEmbeddingKey = (query: string): string =>
 const toFloat64Array = (value: number[] | Float64Array): Float64Array =>
   value instanceof Float64Array ? value : new Float64Array(value)
 
+const isEmbeddingVector = (value: unknown): value is number[] =>
+  Array.isArray(value) && value.length > 0 && typeof value[0] === 'number'
+
 const createEmbedding = async (value: string): Promise<number[]> => {
   const { embedding } = await embed({
     model: EMBEDDING_MODEL,
@@ -44,20 +47,47 @@ const createEmbedding = async (value: string): Promise<number[]> => {
   return embedding
 }
 
+const writeCachedEmbeddings = async (
+  entries: { key: string; embedding: number[]; ttlSeconds: number }[]
+): Promise<void> => {
+  if (entries.length === 0) {
+    return
+  }
+
+  try {
+    const redis = getRedis()
+    if (entries.length === 1) {
+      const [entry] = entries
+      await redis.set(entry.key, entry.embedding, { ex: entry.ttlSeconds })
+      return
+    }
+
+    const pipeline = redis.pipeline()
+    for (const entry of entries) {
+      pipeline.set(entry.key, entry.embedding, { ex: entry.ttlSeconds })
+    }
+    await pipeline.exec()
+  } catch (error) {
+    console.error('Redis SET failed; serving embeddings without cache write:', error)
+  }
+}
+
 const getCachedEmbedding = async (
   cacheKey: string,
   value: string,
   ttlSeconds: number
 ): Promise<Float64Array> => {
-  const redis = getRedis()
-  const cached = await redis.get<number[]>(cacheKey)
-
-  if (Array.isArray(cached) && cached.length > 0) {
-    return toFloat64Array(cached)
+  try {
+    const cached = await getRedis().get<number[]>(cacheKey)
+    if (isEmbeddingVector(cached)) {
+      return toFloat64Array(cached)
+    }
+  } catch (error) {
+    console.error('Redis GET failed; generating embedding without cache:', error)
   }
 
   const embedding = await createEmbedding(value)
-  await redis.set(cacheKey, embedding, { ex: ttlSeconds })
+  await writeCachedEmbeddings([{ key: cacheKey, embedding, ttlSeconds }])
   return toFloat64Array(embedding)
 }
 
@@ -83,13 +113,6 @@ URL: ${article.link}
 ${article.image ? `![Article image](${article.image})` : ''}
 Content: ${article.description.replace(/\n|\t|[ ]{4}/g, ' ').replace(/<[^>]*>/g, '')}`
 }
-
-const getArticleEmbedding = async (key: string, text: string): Promise<Float64Array> =>
-  getCachedEmbedding(
-    articleEmbeddingKey(key, text),
-    text,
-    ARTICLE_EMBEDDING_TTL_SECONDS
-  )
 
 export async function generateArticleEmbeddings(articles: Article[]): Promise<{
   key: string
@@ -146,16 +169,61 @@ export async function generateArticleEmbeddings(articles: Article[]): Promise<{
     return []
   }
 
+  const items = validArticles.map(article => {
+    const text = buildArticleEmbeddingText(article)
+    return {
+      key: article.key as string,
+      cacheKey: articleEmbeddingKey(article.key as string, text),
+      text,
+    }
+  })
+
   try {
-    return await Promise.all(
-      validArticles.map(async article => ({
-        key: article.key as string,
-        embedding: await getArticleEmbedding(
-          article.key as string,
-          buildArticleEmbeddingText(article)
-        ),
-      }))
-    )
+    let cached: (number[] | null)[] = items.map(() => null)
+
+    try {
+      cached = await getRedis().mget<(number[] | null)[]>(
+        ...items.map(item => item.cacheKey)
+      )
+    } catch (error) {
+      console.error('Redis MGET failed; generating embeddings without cache:', error)
+    }
+
+    const misses: { index: number; text: string; cacheKey: string }[] = []
+    const embeddings: (Float64Array | null)[] = items.map((item, index) => {
+      const value = cached[index]
+      if (isEmbeddingVector(value)) {
+        return toFloat64Array(value)
+      }
+      misses.push({ index, text: item.text, cacheKey: item.cacheKey })
+      return null
+    })
+
+    if (misses.length > 0) {
+      const created = await Promise.all(
+        misses.map(async miss => ({
+          ...miss,
+          embedding: await createEmbedding(miss.text),
+        }))
+      )
+
+      await writeCachedEmbeddings(
+        created.map(entry => ({
+          key: entry.cacheKey,
+          embedding: entry.embedding,
+          ttlSeconds: ARTICLE_EMBEDDING_TTL_SECONDS,
+        }))
+      )
+
+      for (const entry of created) {
+        embeddings[entry.index] = toFloat64Array(entry.embedding)
+      }
+    }
+
+    return items.map((item, index) => ({
+      key: item.key,
+      embedding: embeddings[index] as Float64Array,
+    }))
   } catch (error) {
     console.error('Error generating embeddings:', error)
     throw new Error('Failed to generate embeddings. Please try again later.')
