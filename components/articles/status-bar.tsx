@@ -79,7 +79,7 @@ export const StatusBar = ({
         aria-label={copied ? 'Copied top 10 articles' : 'Copy top 10 articles as text'}
         onClick={() => void handleCopyRecommendations()}
         onKeyDown={handleKeyDown}
-        className="scroll-m-20 text-center tracking-tighter md:tracking-tight py-1 px-1 md:px-3 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-lg backdrop-saturate-200 shadow-[0px_4px_10px_2px_rgba(100,100,100,0.05)] border border-white border-opacity-70 dark:border-gray-600 dark:border-opacity-70 cursor-pointer select-none transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400"
+        className="scroll-m-20 text-center tracking-tighter md:tracking-tight py-1 px-1 md:px-3 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-lg backdrop-saturate-200 shadow-[0px_4px_10px_2px_rgba(100,100,100,0.05)] border border-white/70 dark:border-gray-600/70 cursor-pointer select-none transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400"
       >
         <span className="px-2 border-r border-neutral-300 dark:border-neutral-600">
           {dict.title.articles_in_past_days

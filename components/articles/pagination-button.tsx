@@ -28,7 +28,7 @@ export function PaginationButton({ href, children, isActive, disabled, ...props 
 
   return (
     <Button 
-      variant={isActive ? "default" : "outline-solid"} 
+      variant={isActive ? "default" : "outline"} 
       size="icon" 
       asChild
     >

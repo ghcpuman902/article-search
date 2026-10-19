@@ -38,7 +38,7 @@ export const LoadingCardGrid: React.FC<{ locale?: string }> = ({ locale }) => {
     return (
         <>
             <div className="sticky top-0 left-0 right-0 z-50 py-6 flex place-content-center">
-                <span className="scroll-m-20 text-center tracking-tight py-1 px-3 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-lg backdrop-saturate-200 shadow-[0px_4px_10px_2px_rgba(100,100,100,0.05)] border border-white border-opacity-70 dark:border-gray-600 dark:border-opacity-70">
+                <span className="scroll-m-20 text-center tracking-tight py-1 px-3 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-lg backdrop-saturate-200 shadow-[0px_4px_10px_2px_rgba(100,100,100,0.05)] border border-white/70 dark:border-gray-600/70">
                     <Skeleton className="h-[1em] w-[300px]" />
                 </span>
             </div>

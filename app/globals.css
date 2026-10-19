@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 
+@plugin "tailwindcss-animate";
+
+@source "../packages/ui";
+
 @custom-variant dark (&:is(.dark *));
+@custom-variant hover (&:hover);
+@custom-variant group-hover (&:is(:where(.group):hover *));
 
 @theme {
   --animate-*: initial;
@@ -81,6 +87,20 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
 @utility scrollbar-thin-transparent {
@@ -112,12 +132,6 @@
       var(--muted-foreground) 55%,
       transparent
     );
-  }
-}
-
-@layer utilities {
-  body {
-    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   }
 }
 
