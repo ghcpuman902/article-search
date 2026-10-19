@@ -247,7 +247,7 @@ function MorphingDialogContent({
         key="morphing-dialog-backdrop"
         type="button"
         aria-label="Close dialog"
-        className="fixed inset-0 z-50 cursor-default bg-black/10 backdrop-blur-sm"
+        className="fixed inset-0 z-50 cursor-default bg-black/10 backdrop-blur-xs"
         initial={shouldReduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={shouldReduceMotion ? undefined : { opacity: 0 }}
@@ -268,7 +268,7 @@ function MorphingDialogContent({
           layoutRoot
           data-slot="morphing-dialog-content"
           className={cn(
-            "pointer-events-auto relative flex w-full max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-background text-sm shadow-lg ring-1 ring-foreground/10 outline-none",
+            "pointer-events-auto relative flex w-full max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-background text-sm shadow-lg ring-1 ring-foreground/10 outline-hidden",
             className
           )}
           style={style}
@@ -306,7 +306,7 @@ function MorphingDialogDescription({
     <div
       data-slot="morphing-dialog-description"
       className={cn(
-        "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+        "text-sm text-muted-foreground [a]:*:underline [a]:*:underline-offset-3 hover:[a]:*:text-foreground",
         className
       )}
       {...props}

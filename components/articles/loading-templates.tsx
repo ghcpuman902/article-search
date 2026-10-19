@@ -68,14 +68,14 @@ export const LoadingCardGrid: React.FC<{ locale?: string }> = ({ locale }) => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <Skeleton className="h-[1rem] w-full" />
-                                <Skeleton className="h-[1rem] w-full" />
-                                <Skeleton className="h-[1rem] w-full" />
-                                <Skeleton className="h-[1rem] w-5/6" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-5/6" />
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <div className="leading-7 [&:not(:first-child)]:mt-6 text-ellipsis overflow-hidden">
+                            <div className="leading-7 not-first:mt-6 text-ellipsis overflow-hidden">
                                 {dict.table.source}: <Skeleton className="inline-block w-[100px] h-[1em]" />
                             </div>
                         </CardFooter>

@@ -136,7 +136,7 @@ export const ArticleCard = memo(function ArticleCard({ article, locale }: Articl
                 />
             </CardContent>
             <CardFooter>
-                <div className="leading-7 [&:not(:first-child)]:mt-6 text-ellipsis overflow-hidden">
+                <div className="leading-7 not-first:mt-6 text-ellipsis overflow-hidden">
                     Source: <Link 
                         href={article.source || '#'} 
                         target="_blank" 

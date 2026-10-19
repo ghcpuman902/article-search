@@ -48,7 +48,7 @@ export const ArticleMedia = ({ image, placeHolder }: ArticleMediaProps) => {
                         className="object-cover w-full h-full"
                         priority
                     />
-                    <div className="absolute inset-0 backdrop-brightness-125 dark:backdrop-brightness-90 dark:backdrop-saturate-150 backdrop-blur-sm" />
+                    <div className="absolute inset-0 backdrop-brightness-125 dark:backdrop-brightness-90 dark:backdrop-saturate-150 backdrop-blur-xs" />
                     <div className='text-xl font-bold w-full text-white absolute top-1/2 transform -translate-y-1/2 text-center text-shadow-md'>
                         {placeHolder}
                     </div>

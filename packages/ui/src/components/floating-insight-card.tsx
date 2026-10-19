@@ -303,7 +303,7 @@ export const FloatingInsightCard = ({
               isCard &&
                 "flex h-[min(20rem,calc(100vh-2rem))] w-[min(16rem,calc(100vw-2rem))] flex-col rounded-xl p-4",
               isCircle &&
-                "relative flex h-9 cursor-pointer items-center rounded-full min-w-9 outline-none focus-visible:ring-2 focus-visible:ring-ring max-w-[min(calc(100vw-2rem),20rem)]"
+                "relative flex h-9 cursor-pointer items-center rounded-full min-w-9 outline-hidden focus-visible:ring-2 focus-visible:ring-ring max-w-[min(calc(100vw-2rem),20rem)]"
             )}
             onMouseEnter={handleLayoutMouseEnter}
             onMouseLeave={handleLayoutMouseLeave}

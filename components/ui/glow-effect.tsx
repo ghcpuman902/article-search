@@ -111,14 +111,14 @@ export function GlowEffect({
     },
   };
 
-  const getBlurClass = (blur: GlowEffectProps['blur']) => {
+  const getBlurClass = (blur: GlowEffectProps['blur-sm']) => {
     if (typeof blur === 'number') {
       return `blur-[${blur}px]`;
     }
 
     const presets = {
-      softest: 'blur-sm',
-      soft: 'blur',
+      softest: 'blur-xs',
+      soft: 'blur-sm',
       medium: 'blur-md',
       strong: 'blur-lg',
       stronger: 'blur-xl',
@@ -142,7 +142,7 @@ export function GlowEffect({
       animate={animations[mode]}
       className={cn(
         'pointer-events-none absolute inset-0 h-full w-full',
-        'scale-[var(--scale)] transform-gpu',
+        'scale-(--scale) transform-gpu',
         getBlurClass(blur),
         className
       )}
