@@ -71,7 +71,7 @@ const SmartCategoryLink = React.forwardRef<
   return (
     <Card
       ref={ref}
-      className={cn("overflow-hidden group hover:border-primary/50 transition-colors cursor-pointer shadow-none", className)}
+      className={cn("overflow-hidden group transition-colors cursor-pointer shadow-none", className)}
       {...props}
     >
       <CardHeader className="p-0">

@@ -190,7 +190,7 @@ function ArticleTable({ articles, locale='en-US' }: { articles: Article[], local
                   <tr 
                     key={row.id} 
                     className={cn(
-                      "border-t hover:bg-muted/50",
+                      "border-t",
                       age - MAX_AGE_IN_MILLISECONDS > 0 && "text-red-400 dark:text-red-500 hover:bg-red-100/50 dark:hover:bg-red-900/50",
                       age - HIDE_TIME_IN_MILLISECONDS > 0 && "bg-yellow-50 dark:bg-yellow-900/50 hover:bg-yellow-100/50 dark:hover:bg-yellow-800/50"
                     )}

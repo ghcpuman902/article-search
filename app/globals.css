@@ -301,6 +301,13 @@ body {
 
 
 @layer base {
+  /* v3 preflight ring color: blue-500 at 50%. */
+  *,
+  ::before,
+  ::after {
+    --tw-ring-color: #3b82f680;
+  }
+
   * {
     border-color: var(--border);
   }

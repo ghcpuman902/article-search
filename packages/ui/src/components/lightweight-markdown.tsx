@@ -27,7 +27,7 @@ const renderInline = (text: string, keyPrefix: string) => {
           href={linkMatch[2]}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-3 hover:text-foreground"
+          className="underline hover:text-foreground"
         >
           {linkMatch[1]}
         </a>
@@ -110,7 +110,7 @@ export const LightweightMarkdown = ({ content, className }: LightweightMarkdownP
           return (
             <h3
               key={key}
-              className="text-sm font-medium uppercase tracking-wide text-foreground/70"
+              className="text-sm font-medium uppercase tracking-wide"
             >
               {renderInline(block.text, key)}
             </h3>

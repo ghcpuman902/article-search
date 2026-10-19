@@ -268,7 +268,7 @@ function MorphingDialogContent({
           layoutRoot
           data-slot="morphing-dialog-content"
           className={cn(
-            "pointer-events-auto relative flex w-full max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-background text-sm shadow-lg ring-1 ring-foreground/10 outline-hidden",
+            "pointer-events-auto relative flex w-full max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-background text-sm shadow-lg ring-1 outline-hidden",
             className
           )}
           style={style}
@@ -306,7 +306,7 @@ function MorphingDialogDescription({
     <div
       data-slot="morphing-dialog-description"
       className={cn(
-        "text-sm text-muted-foreground [a]:*:underline [a]:*:underline-offset-3 hover:[a]:*:text-foreground",
+        "text-sm text-muted-foreground",
         className
       )}
       {...props}

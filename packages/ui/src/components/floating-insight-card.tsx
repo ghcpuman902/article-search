@@ -34,7 +34,7 @@ export type FloatingInsightCardProps = {
 }
 
 const iconButtonClassName =
-  "flex border-none p-0! shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+  "flex border-none shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 const INITIAL_SHRINK_MS = 3000
 const CARD_SHRINK_MS = 1000
