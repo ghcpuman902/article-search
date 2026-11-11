@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
-import { timeAgo, olderThan1hr, getDictionary } from "@/lib/utils";
+import { timeAgo, getDictionary } from "@/lib/utils";
 
 interface LastFetchedProps {
     locale: string;
@@ -24,8 +24,7 @@ export function LastFetched({ locale, updateTime }: LastFetchedProps) {
     
     return (
         <Label className="text-neutral-400 dark:text-neutral-600" suppressHydrationWarning>
-            {dict.label.last_fetched.replace("[TIME AGO]", timeAgoString)} 
-            {olderThan1hr(updateTime) ? dict.label.please_refresh : null}
+            {dict.label.last_fetched.replace("[TIME AGO]", timeAgoString)}
         </Label>
     );
 } 

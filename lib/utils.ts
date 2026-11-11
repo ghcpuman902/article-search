@@ -283,6 +283,11 @@ export function getDictionary(locale?: string): Dictionary {
             "ja-JP": "記事を検索",
             "zh-CN": "搜索文章"
         },
+        "list_outdated": {
+            "en-US": "This list is outdated. Newer articles are being fetched.",
+            "ja-JP": "この一覧は最新ではありません。新しい記事を取得しています。",
+            "zh-CN": "此列表已过期，正在获取更新的文章。"
+        },
     };
 
     const localeMap = {
@@ -314,7 +319,8 @@ export function getDictionary(locale?: string): Dictionary {
             "having-issues": translations["having-issues"][selectedLocale],
             "issue-alert-title": translations["issue-alert-title"][selectedLocale],
             "issue-alert-description": translations["issue-alert-description"][selectedLocale],
-            search_input: translations.search_input[selectedLocale]
+            search_input: translations.search_input[selectedLocale],
+            list_outdated: translations.list_outdated[selectedLocale]
         },
         button: {
             search: translations.search[selectedLocale],

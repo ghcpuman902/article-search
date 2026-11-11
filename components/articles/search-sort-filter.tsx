@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, startTransition } from 'react';
 import { track } from '@vercel/analytics';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // import { AlertCircle } from "lucide-react"
 // import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-import { useRef } from 'react';
 import { getDictionary } from "@/lib/utils";
+import { isFeedSnapshotOutdated } from '@/lib/feed-cache-life';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     SortOption,
@@ -22,10 +22,16 @@ import { setCategoryState } from '@/lib/local-storage';
 import { RSS_SOURCES } from '@/lib/rss-sources';
 
 
+const FEED_STATUS_POLL_MS = 3000
+const FEED_STATUS_POLL_LIMIT_MS = 45_000
+
 export const SearchSortFilter: React.FC<{
     locale?: string;
-}> = ({ locale = 'en-US' }) => {
+    category: string;
+    updateTime: string;
+}> = ({ locale = 'en-US', category, updateTime }) => {
     const queryInputRef = useRef<HTMLInputElement>(null);
+    const refreshedFor = useRef<number | null>(null);
     const dict = getDictionary(locale);
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -115,6 +121,65 @@ export const SearchSortFilter: React.FC<{
         setIsLoading(false);
     }, [searchParams]);
 
+    const listIsOutdated = isFeedSnapshotOutdated(updateTime);
+    const [refreshNote, setRefreshNote] = useState(listIsOutdated);
+
+    useEffect(() => {
+        setRefreshNote(isFeedSnapshotOutdated(updateTime));
+    }, [updateTime]);
+
+    useEffect(() => {
+        if (!isFeedSnapshotOutdated(updateTime)) {
+            return;
+        }
+
+        let stopped = false;
+        const startedAt = Date.now();
+        const seenTime = new Date(updateTime).getTime();
+
+        const handlePollFeedStatus = async () => {
+            if (stopped || Date.now() - startedAt > FEED_STATUS_POLL_LIMIT_MS) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/api/feed-status?category=${encodeURIComponent(category)}`,
+                    { cache: 'no-store' }
+                );
+                if (!response.ok || stopped) {
+                    return;
+                }
+                const body = await response.json() as { updateTime?: string; refreshing?: boolean };
+                const nextTime = body.updateTime ? new Date(body.updateTime).getTime() : Number.NaN;
+                const newerSnapshot = Number.isFinite(nextTime) && nextTime > seenTime;
+                if (!newerSnapshot) {
+                    const stillOutdated = !body.updateTime || isFeedSnapshotOutdated(body.updateTime);
+                    setRefreshNote(Boolean(body.refreshing) || stillOutdated);
+                }
+
+                if (newerSnapshot && refreshedFor.current !== nextTime) {
+                    refreshedFor.current = nextTime;
+                    startTransition(() => {
+                        router.refresh();
+                    });
+                }
+            } catch {
+                setRefreshNote(true);
+            }
+        };
+
+        void handlePollFeedStatus();
+        const intervalId = setInterval(() => {
+            void handlePollFeedStatus();
+        }, FEED_STATUS_POLL_MS);
+
+        return () => {
+            stopped = true;
+            clearInterval(intervalId);
+        };
+    }, [category, router, updateTime]);
+
     const grayWaveKeyframes = `
         @keyframes grayWave {
             0% { background-position: -200% center; }
@@ -178,6 +243,7 @@ export const SearchSortFilter: React.FC<{
                     style={isLoading ? loadingStyle : undefined}
                     disabled={isLoading}
                     aria-label={dict.label.search_input}
+                    aria-describedby={refreshNote ? 'feed-refresh-status' : undefined}
                 />
                 <Button
                     type="submit"
@@ -189,6 +255,17 @@ export const SearchSortFilter: React.FC<{
                     {dict.button.search}
                 </Button>
             </form>
+
+            {refreshNote ? (
+                <p
+                    id="feed-refresh-status"
+                    role="status"
+                    aria-live="polite"
+                    className="mb-4 w-full text-center text-sm text-neutral-500 dark:text-neutral-400"
+                >
+                    {dict.label.list_outdated}
+                </p>
+            ) : null}
 
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
                 {/* Sort Controls */}

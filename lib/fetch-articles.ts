@@ -11,6 +11,7 @@ import {
   FEED_CACHE_REVALIDATE_SECONDS,
   FEED_CACHE_STALE_SECONDS,
 } from '@/lib/feed-cache-life'
+import { noteFeedRefreshEnd, noteFeedRefreshStart } from '@/lib/feed-refresh'
 import { Article, SuccessfulSource, FetchResult, MediaItem, ImageData } from '@/lib/types'
 import { formatDate, getDomainNameFromUrl, linkToKey } from '@/lib/utils'
 import * as htmlparser2 from 'htmlparser2'
@@ -244,14 +245,13 @@ export const fetchAllArticles = async (
   category: string = 'astronomy', 
   params: FetchAllArticlesParams = {}
 ): Promise<FetchResult> => {
-  // 'remote' shares this cache across Fluid Compute instances so one
-  // category's RSS aggregation is reused by later requests. The lifetime
-  // is applied once we know whether the snapshot is usable: an empty
-  // result must not be pinned for the full hour.
+  // 'remote' shares one snapshot across instances. After `revalidate`,
+  // the next request is served this entry immediately while one background
+  // refresh runs. An empty or failed refresh throws so it is not stored.
   'use cache: remote';
 
-  // Tagged per-category so the revalidate-feeds cron can invalidate and
-  // re-warm a single category without touching the others.
+  // Tagged per-category so the revalidate-feeds cron can mark one category
+  // stale without touching the others.
   cacheTag(`articles-${category}`);
 
   // Add debug timestamp before cache configuration
@@ -264,6 +264,7 @@ export const fetchAllArticles = async (
   const { NO_FILTER = false } = params;
   
   console.log(`fetchAllArticles (${category}) ${formatDate(new Date())} start`)
+  noteFeedRefreshStart(category)
   try {
     const selectedFeeds = RSS_SOURCES[category]?.feeds ?? RSS_SOURCES['astronomy'].feeds
     const currentTime = Date.now()
@@ -352,25 +353,20 @@ export const fetchAllArticles = async (
     console.log(`[${requestId}] Number of articles fetched: ${allArticles.length}`);
 
     if (allArticles.length === 0) {
-      // A failed or empty pull must not occupy the hourly slot. `seconds`
-      // expires within a minute and stays out of the static shell.
-      cacheLife('seconds')
-    } else {
-      cacheLife({
-        stale: FEED_CACHE_STALE_SECONDS,
-        revalidate: FEED_CACHE_REVALIDATE_SECONDS,
-        expire: FEED_CACHE_EXPIRE_SECONDS,
-      })
+      throw new Error(`Refusing to store an empty ${category} feed snapshot`)
     }
+
+    cacheLife({
+      stale: FEED_CACHE_STALE_SECONDS,
+      revalidate: FEED_CACHE_REVALIDATE_SECONDS,
+      expire: FEED_CACHE_EXPIRE_SECONDS,
+    })
 
     return finalResult
   } catch (error) {
     console.warn(`Warning in fetchAllArticles (${category}):`, error)
-    cacheLife('seconds')
-    return {
-      articles: [],
-      successfulSources: [],
-      updateTime: new Date()
-    }
+    throw error
+  } finally {
+    noteFeedRefreshEnd(category)
   }
 }
