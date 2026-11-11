@@ -7,6 +7,7 @@ import { UnifiedSearchParams } from '@/lib/types'
 import { SearchSortFilter } from '@/components/articles/search-sort-filter'
 import { redirect } from 'next/navigation'
 import { RSS_SOURCES } from '@/lib/rss-sources'
+import { toFeedSnapshotIso } from '@/lib/feed-cache-life'
 
 // Async component that fetches and displays articles data. Reading
 // `searchParams` below already opts this component into dynamic rendering
@@ -42,7 +43,11 @@ export const ArticlesContent = async ({
         locale={locale}
       />
 
-      <SearchSortFilter locale={locale} />
+      <SearchSortFilter
+        locale={locale}
+        category={category}
+        updateTime={toFeedSnapshotIso(updateTime)}
+      />
 
       <ArticlesGrid
         articles={articles}
