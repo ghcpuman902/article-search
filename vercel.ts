@@ -1,8 +1,10 @@
 import { type VercelConfig } from '@vercel/config/v1';
 
-// Pre-warm the 'use cache: remote' RSS cache once a week, Monday 05:00 UTC
-// (06:00 UK in summer / 05:00 in winter) so weekday visits read cached feeds.
-// Stagger categories by 5 minutes so nine feed fetches don't overlap.
+// Force a tagged RSS refresh once a week, Monday 05:00 UTC (06:00 UK in
+// summer / 05:00 in winter). Hourly freshness comes from fetchAllArticles'
+// cacheLife; this cron drops the tag and rewrites the remote snapshot so a
+// visit is not the first request to pay for every feed. Stagger categories
+// by 5 minutes so nine feed fetches don't overlap.
 export const config: VercelConfig = {
   crons: [
     { path: '/api/revalidate-feeds?category=astronomy', schedule: '0 5 * * 1' },

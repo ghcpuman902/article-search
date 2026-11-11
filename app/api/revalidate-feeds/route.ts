@@ -6,9 +6,9 @@ import { enforceRateLimit } from '@/lib/rate-limit'
 import { RSS_SOURCES } from '@/lib/rss-sources'
 
 // Triggered by the vercel.ts crons. Must expire BOTH the tagged RSS data
-// cache and the category page ISR/CDN entry — updateTag is Server Actions
-// only, so a Route Handler that only called it left last week's articles
-// in place until a later visit happened to miss.
+// cache and the category page entry. updateTag is Server Actions only, so
+// a route handler that only called it left the previous snapshot in place
+// until a later visit happened to miss.
 export async function GET(request: Request) {
   const rate = await enforceRateLimit(request, 'cron')
   if (!rate.ok) {
@@ -31,8 +31,9 @@ export async function GET(request: Request) {
       if (!RSS_SOURCES[category]) {
         throw new Error(`Unknown category: ${category}`)
       }
-      // expire: 0 = next read in this same request is a blocking miss,
-      // so fetchAllArticles actually hits RSS instead of the weekly cache.
+      // expire: 0 = the read below is a blocking miss, so this request
+      // refetches RSS and the following page read sees that snapshot.
+      // `updateTag` is Server Actions only, so a route handler cannot use it.
       revalidateTag(`articles-${category}`, { expire: 0 })
       revalidatePath(`/${category}`)
       revalidatePath(`/${category}/list`)
